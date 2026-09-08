@@ -2,6 +2,10 @@
 
 Leggere queste regole prima di modificare l’applicazione.
 
+## Creazione delle lezioni
+
+Prima di aggiungere o modificare una lezione, leggere e applicare integralmente [CREAZIONE_LEZIONI.md](CREAZIONE_LEZIONI.md). La guida definisce il livello accademico, la struttura didattica, gli esercizi e i criteri di valutazione obbligatori.
+
 ## Didattica
 
 - Scrivere spiegazioni in italiano semplice, introducendo un concetto alla volta.
