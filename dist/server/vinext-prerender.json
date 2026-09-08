@@ -1,0 +1,39 @@
+{
+  "buildId": "ff12c5c2-8ede-4ee8-bb5d-6d51e05c075f",
+  "trailingSlash": false,
+  "routes": [
+    {
+      "route": "/",
+      "status": "rendered",
+      "revalidate": false,
+      "router": "app",
+      "tags": [
+        "/",
+        "_N_T_/",
+        "_N_T_/index",
+        "_N_T_/layout",
+        "_N_T_/page"
+      ]
+    },
+    {
+      "route": "/404",
+      "status": "rendered",
+      "revalidate": false,
+      "router": "app"
+    }
+  ],
+  "pregeneratedConcretePaths": [
+    [
+      "/",
+      [
+        "/"
+      ]
+    ],
+    [
+      "/404",
+      [
+        "/404"
+      ]
+    ]
+  ]
+}
