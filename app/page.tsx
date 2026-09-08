@@ -106,7 +106,6 @@ export default function Home() {
   const [running, setRunning] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const [githubUrl, setGithubUrl] = useState(DEFAULT_GITHUB_URL);
-  const [labApiToken, setLabApiToken] = useState('');
   const [sandbox, setSandbox] = useState<SandboxStatus>({
     available: false,
     message: 'Verifica della sandbox locale…',
@@ -141,9 +140,8 @@ export default function Home() {
         return response.json();
       })
       .then((value) => {
-        const config = value as { githubRepositoryUrl?: string; labApiToken?: string; labSandbox?: SandboxStatus };
+        const config = value as { githubRepositoryUrl?: string; labSandbox?: SandboxStatus };
         setGithubUrl(config.githubRepositoryUrl || DEFAULT_GITHUB_URL);
-        setLabApiToken(config.labApiToken ?? '');
         if (config.labSandbox) setSandbox(config.labSandbox);
       })
       .catch(() => setSandbox({
@@ -213,7 +211,7 @@ export default function Home() {
       });
       return;
     }
-    if (!sandbox.available || !labApiToken) {
+    if (!sandbox.available) {
       appendTerminal({ command: normalized, output: sandbox.message, ok: false });
       return;
     }
@@ -223,8 +221,8 @@ export default function Home() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Studio-Java-Token': labApiToken,
         },
+        credentials: 'same-origin',
         body: JSON.stringify({ code, command: normalized }),
       });
       const result = await response.json() as CommandResult;
@@ -487,7 +485,7 @@ export default function Home() {
 
             <div className="sandbox-explainer">
               <ShieldCheck />
-              <div><strong>Il codice non viene eseguito direttamente sul computer</strong><p>Ogni comando usa un container temporaneo senza rete, con memoria, CPU, processi e tempo limitati. Al termine l’ambiente viene eliminato.</p></div>
+              <div><strong>Il codice non viene eseguito direttamente sul computer</strong><p>Ogni comando usa un container temporaneo senza rete e con utente non-root. Il sorgente è montato in sola lettura; memoria, CPU, processi, spazio, output e tempo sono limitati. Al termine l’ambiente viene eliminato.</p></div>
             </div>
             <div className="lab-bottom">
               <div className="command-card"><span>Comando consigliato</span><code>java Main.java</code><small>Compila ed esegue il file sorgente nel container temporaneo.</small></div>

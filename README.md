@@ -1,6 +1,6 @@
 # Studio Java
 
-[![Versione](https://img.shields.io/badge/versione-0.2.2-006b57)](https://github.com/Federpelli25/JAVA_linguo/releases)
+[![Versione](https://img.shields.io/badge/versione-0.3.0-006b57)](https://github.com/Federpelli25/JAVA_linguo/releases)
 [![Java](https://img.shields.io/badge/Java-25%20LTS-e76f00)](https://www.oracle.com/java/technologies/java-se-support-roadmap.html)
 
 Studio Java è un'applicazione didattica locale disponibile pubblicamente su GitHub per studiare Java con un percorso strutturato: prima la teoria, poi la verifica e infine il laboratorio pratico. Le spiegazioni e gli esercizi seguono un livello di approfondimento simile a un corso universitario.
@@ -40,7 +40,7 @@ Su Windows:
 ```powershell
 py -m venv .venv
 Copy-Item .env.example .env
-docker pull eclipse-temurin:25-jdk
+docker pull eclipse-temurin:25-jdk@sha256:e787e08ef76f4c16866108cd7f9fcd96a68eef3ac6cc76866897d4d02d5a2262
 ```
 
 Su macOS o Linux:
@@ -48,7 +48,7 @@ Su macOS o Linux:
 ```bash
 python3 -m venv .venv
 cp .env.example .env
-docker pull eclipse-temurin:25-jdk
+docker pull eclipse-temurin:25-jdk@sha256:e787e08ef76f4c16866108cd7f9fcd96a68eef3ac6cc76866897d4d02d5a2262
 ```
 
 L'immagine Docker viene scaricata una sola volta. L'applicazione web già compilata è inclusa nel repository, quindi per studiare non occorre installare Node.js.
@@ -82,13 +82,38 @@ java Main.java
 Ogni esecuzione avviene in un nuovo container Docker con:
 
 - rete disabilitata;
+- processo Java eseguito come utente non-root;
 - filesystem del container in sola lettura;
-- una sola cartella temporanea condivisa;
-- limiti di CPU, memoria, processi e durata;
+- sorgente montato singolarmente in sola lettura, senza condividere repository, Desktop o cartella personale;
+- spazio di lavoro in memoria con quota di 32 MB;
+- limiti di CPU, memoria, swap, file aperti, processi, output e durata;
 - privilegi Linux rimossi;
+- acquisizione di nuovi privilegi disabilitata e profilo seccomp Docker mantenuto attivo;
 - eliminazione automatica al termine.
 
-Queste protezioni riducono fortemente il rischio, ma è comunque buona pratica eseguire soltanto codice che si comprende o che proviene da fonti affidabili.
+L'immagine JDK predefinita è fissata tramite digest, così uno stesso rilascio usa gli stessi byte anche se il tag pubblico viene aggiornato. Il vecchio valore `eclipse-temurin:25-jdk` viene convertito automaticamente al digest sicuro previsto dalla release.
+
+Anche il server locale applica:
+
+- ascolto esclusivo su `127.0.0.1` e verifica degli header `Host` e `Origin`;
+- sessione casuale conservata in un cookie `HttpOnly` e `SameSite=Strict`, mai esposta al codice JavaScript;
+- una sola esecuzione contemporanea e massimo 12 richieste al minuto;
+- richieste, sorgenti e output con dimensione massima;
+- Content Security Policy e header contro inclusione in iframe, sniffing e accesso a funzionalità del browser.
+
+Queste protezioni riducono fortemente il rischio, ma la sandbox locale non è progettata come servizio pubblico multiutente. È comunque buona pratica eseguire soltanto codice che si comprende o che proviene da fonti affidabili. Per segnalazioni riservate consulta [SECURITY.md](SECURITY.md).
+
+## Sicurezza del repository
+
+Il repository include controlli automatici per:
+
+- test Python, lint, build e audit delle dipendenze a ogni modifica;
+- analisi statica CodeQL per Python e TypeScript;
+- revisione delle nuove dipendenze nelle pull request;
+- aggiornamenti settimanali di pacchetti npm e GitHub Actions tramite Dependabot;
+- archivio ZIP, SBOM CycloneDX, checksum SHA-256 e attestazione di provenienza per ogni nuova release.
+
+Le GitHub Actions sono fissate a commit completi per ridurre il rischio di sostituzione dei tag.
 
 ## Aggiornare il progetto
 

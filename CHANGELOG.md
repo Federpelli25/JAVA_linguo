@@ -2,6 +2,19 @@
 
 Tutte le modifiche rilevanti di Studio Java sono documentate in questo file. Il progetto segue il versionamento semantico.
 
+## [0.3.0] - 2026-09-08
+
+### Sicurezza
+
+- sessione del laboratorio spostata in un cookie `HttpOnly` e `SameSite=Strict`;
+- richieste locali protette con controlli `Host` e `Origin`, rate limit e singola esecuzione concorrente;
+- sandbox eseguita come utente non-root con filesystem read-only, capability azzerate e nuovi limiti su swap, file e spazio temporaneo;
+- file Java montato singolarmente in sola lettura e output acquisito con limite prima di raggiungere la memoria del processo Python;
+- immagine Eclipse Temurin 25 fissata tramite digest verificabile;
+- Content Security Policy e ulteriori header di sicurezza applicati a tutte le risposte;
+- dipendenze vulnerabili aggiornate e audit npm portato a zero segnalazioni;
+- aggiunti CI, CodeQL, Dependency Review, Dependabot e politica privata di segnalazione.
+
 ## [0.2.2] - 2026-09-08
 
 ### Migliorato

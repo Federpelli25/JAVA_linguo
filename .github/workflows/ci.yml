@@ -1,0 +1,53 @@
+name: Qualità e sicurezza
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gates:
+    name: Test, lint e build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Scarica il repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Configura Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Configura Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.13"
+
+      - name: Installa dipendenze bloccate dal lockfile
+        run: npm ci
+
+      - name: Controlla vulnerabilità npm
+        run: npm audit --audit-level=high
+
+      - name: Controlla il frontend
+        run: npx oxlint app
+
+      - name: Genera la build distribuibile
+        run: npm run build
+
+      - name: Esegue i test Python
+        run: python -m unittest discover -s tests -v
+
+      - name: Verifica gli script di avvio
+        run: python -m py_compile avvia.py collega_github.py

@@ -10,6 +10,10 @@ Prima di aggiungere o modificare una lezione, leggere e applicare integralmente 
 
 Prima di preparare una nuova versione, seguire [RILASCI.md](RILASCI.md). Versione visibile, changelog, tag e release GitHub devono rimanere sincronizzati.
 
+## Sicurezza
+
+Prima di modificare server locale, API del laboratorio, esecuzione Docker, dipendenze o workflow GitHub, leggere e applicare [SICUREZZA.md](SICUREZZA.md). I confini descritti nella guida sono invarianti di progetto e devono essere coperti da test.
+
 ## Didattica
 
 - Scrivere spiegazioni in italiano semplice, introducendo un concetto alla volta.

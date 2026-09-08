@@ -23,6 +23,7 @@ Eseguire nell'ordine:
 ```powershell
 npx oxlint app
 npm run build
+npm audit --audit-level=high
 .venv\Scripts\python.exe -m unittest discover -s tests -v
 .venv\Scripts\python.exe -m py_compile avvia.py collega_github.py
 ```
@@ -34,6 +35,8 @@ Avviare poi `avvia.py` e controllare:
 - stato corretto di Docker;
 - compilazione ed esecuzione di un programma Java nel container;
 - rifiuto di un comando non presente nella lista consentita.
+- rifiuto di una richiesta priva di origine locale valida;
+- interruzione di un programma che supera il limite di output.
 
 ## GitHub
 
