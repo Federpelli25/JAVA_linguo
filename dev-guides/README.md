@@ -6,6 +6,10 @@ Leggere queste regole prima di modificare l’applicazione.
 
 Prima di aggiungere o modificare una lezione, leggere e applicare integralmente [CREAZIONE_LEZIONI.md](CREAZIONE_LEZIONI.md). La guida definisce il livello accademico, la struttura didattica, gli esercizi e i criteri di valutazione obbligatori.
 
+## Versioni e pubblicazione
+
+Prima di preparare una nuova versione, seguire [RILASCI.md](RILASCI.md). Versione visibile, changelog, tag e release GitHub devono rimanere sincronizzati.
+
 ## Didattica
 
 - Scrivere spiegazioni in italiano semplice, introducendo un concetto alla volta.

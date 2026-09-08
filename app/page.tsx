@@ -1,16 +1,74 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, ChevronRight, CircleDot, Code2, GitBranch as Github, GraduationCap, Lightbulb, LockKeyhole, RotateCcw, TerminalSquare } from 'lucide-react';
+import { KeyboardEvent, useEffect, useMemo, useState } from 'react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  BookOpen,
+  CalendarClock,
+  Check,
+  CheckCircle2,
+  ChevronRight,
+  CircleDot,
+  Code2,
+  Container,
+  GitBranch as Github,
+  GraduationCap,
+  Lightbulb,
+  LoaderCircle,
+  LockKeyhole,
+  Play,
+  RotateCcw,
+  ShieldCheck,
+  TerminalSquare,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress, ProgressLabel } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { lessonOne, roadmap } from './course-data';
+import { APP_VERSION } from './version';
 
 type Answers = Record<string, string>;
-const STORAGE_KEY = 'studio-java-progress-v1';
+type SandboxStatus = {
+  available: boolean;
+  message: string;
+  image: string;
+  commands: string[];
+};
+type CommandResult = {
+  ok?: boolean;
+  output?: string;
+  error?: string;
+  exitCode?: number;
+  durationMs?: number;
+};
+type TerminalEntry = {
+  id: number;
+  command: string;
+  output: string;
+  ok: boolean;
+  meta?: string;
+};
+
+const STORAGE_KEY = 'studio-java-progress-v2';
+const DEFAULT_GITHUB_URL = 'https://github.com/Federpelli25/JAVA_linguo';
+const INITIAL_CODE = `public class Main {
+    public static void main(String[] args) {
+        String input = "Educazione";
+        int actual = countVowels(input);
+
+        System.out.println("Input: " + input);
+        System.out.println("Atteso: 6");
+        System.out.println("Ottenuto: " + actual);
+    }
+
+    static int countVowels(String text) {
+        // TODO: valida null, visita ogni char e conta le vocali.
+        return 0;
+    }
+}`;
 
 function inlineCode(text: string) {
   return text.split(/(`[^`]+`)/g).map((part, index) =>
@@ -28,8 +86,19 @@ export default function Home() {
   const [labChecks, setLabChecks] = useState([false, false, false]);
   const [notes, setNotes] = useState('');
   const [completed, setCompleted] = useState(false);
+  const [code, setCode] = useState(INITIAL_CODE);
+  const [command, setCommand] = useState('java Main.java');
+  const [terminalEntries, setTerminalEntries] = useState<TerminalEntry[]>([]);
+  const [running, setRunning] = useState(false);
   const [hydrated, setHydrated] = useState(false);
-  const [githubUrl, setGithubUrl] = useState('');
+  const [githubUrl, setGithubUrl] = useState(DEFAULT_GITHUB_URL);
+  const [labApiToken, setLabApiToken] = useState('');
+  const [sandbox, setSandbox] = useState<SandboxStatus>({
+    available: false,
+    message: 'Verifica della sandbox locale…',
+    image: 'eclipse-temurin:25-jdk',
+    commands: ['java --version', 'javac Main.java', 'java Main.java'],
+  });
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -44,26 +113,46 @@ export default function Home() {
           setLabChecks(saved.labChecks ?? [false, false, false]);
           setNotes(saved.notes ?? '');
           setCompleted(saved.completed ?? false);
+          setCode(saved.code ?? INITIAL_CODE);
         } catch {
           window.localStorage.removeItem(STORAGE_KEY);
         }
       }
       setHydrated(true);
     });
+
     fetch('/app-config.json')
-      .then((response) => response.json())
-      .then((config: unknown) => {
-        if (typeof config === 'object' && config !== null && 'githubRepositoryUrl' in config && typeof config.githubRepositoryUrl === 'string') {
-          setGithubUrl(config.githubRepositoryUrl);
-        }
+      .then(async (response) => {
+        if (!response.ok) throw new Error('Configurazione locale non disponibile');
+        return response.json();
       })
-      .catch(() => setGithubUrl(''));
+      .then((value) => {
+        const config = value as { githubRepositoryUrl?: string; labApiToken?: string; labSandbox?: SandboxStatus };
+        setGithubUrl(config.githubRepositoryUrl || DEFAULT_GITHUB_URL);
+        setLabApiToken(config.labApiToken ?? '');
+        if (config.labSandbox) setSandbox(config.labSandbox);
+      })
+      .catch(() => setSandbox({
+        available: false,
+        message: 'Apri l’app con avvia.py per usare il terminale Docker locale.',
+        image: 'eclipse-temurin:25-jdk',
+        commands: ['java --version', 'javac Main.java', 'java Main.java'],
+      }));
   }, []);
 
   useEffect(() => {
     if (!hydrated) return;
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ tab, slide, answers, quizChecked, labChecks, notes, completed }));
-  }, [tab, slide, answers, quizChecked, labChecks, notes, completed, hydrated]);
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      tab,
+      slide,
+      answers,
+      quizChecked,
+      labChecks,
+      notes,
+      completed,
+      code,
+    }));
+  }, [tab, slide, answers, quizChecked, labChecks, notes, completed, code, hydrated]);
 
   const quizScore = useMemo(
     () => lessonOne.quiz.filter((question) => answers[question.id] === question.correct).length,
@@ -76,12 +165,78 @@ export default function Home() {
       + (labChecks.filter(Boolean).length / labChecks.length) * 35,
   ));
   const section = lessonOne.theory[slide];
+  const lineNumbers = useMemo(() => code.split('\n').map((_, index) => index + 1), [code]);
 
   function resetProgress() {
-    if (!window.confirm('Vuoi azzerare i progressi della lezione 01?')) return;
+    if (!window.confirm('Vuoi azzerare progressi, note e codice della lezione 01?')) return;
     window.localStorage.removeItem(STORAGE_KEY);
-    setTab('theory'); setSlide(0); setAnswers({}); setQuizChecked(false);
-    setLabChecks([false, false, false]); setNotes(''); setCompleted(false);
+    setTab('theory');
+    setSlide(0);
+    setAnswers({});
+    setQuizChecked(false);
+    setLabChecks([false, false, false]);
+    setNotes('');
+    setCompleted(false);
+    setCode(INITIAL_CODE);
+    setTerminalEntries([]);
+  }
+
+  function appendTerminal(entry: Omit<TerminalEntry, 'id'>) {
+    setTerminalEntries((current) => [...current, { ...entry, id: Date.now() + current.length }]);
+  }
+
+  async function runCommand(requestedCommand = command) {
+    const normalized = requestedCommand.trim().replace(/\s+/g, ' ');
+    setCommand(normalized);
+    if (normalized === 'clear') {
+      setTerminalEntries([]);
+      return;
+    }
+    if (normalized === 'help') {
+      appendTerminal({
+        command: 'help',
+        output: `Comandi disponibili:\n${sandbox.commands.join('\n')}\nclear`,
+        ok: true,
+      });
+      return;
+    }
+    if (!sandbox.available || !labApiToken) {
+      appendTerminal({ command: normalized, output: sandbox.message, ok: false });
+      return;
+    }
+    setRunning(true);
+    try {
+      const response = await fetch('/api/lab/command', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Studio-Java-Token': labApiToken,
+        },
+        body: JSON.stringify({ code, command: normalized }),
+      });
+      const result = await response.json() as CommandResult;
+      appendTerminal({
+        command: normalized,
+        output: result.output ?? result.error ?? 'Nessun output ricevuto.',
+        ok: response.ok && result.ok === true,
+        meta: result.durationMs !== undefined ? `${result.durationMs} ms · exit ${result.exitCode ?? '—'}` : undefined,
+      });
+    } catch {
+      appendTerminal({
+        command: normalized,
+        output: 'Il servizio locale non risponde. Riavvia avvia.py e riprova.',
+        ok: false,
+      });
+    } finally {
+      setRunning(false);
+    }
+  }
+
+  function editorShortcut(event: KeyboardEvent<HTMLTextAreaElement>) {
+    if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+      event.preventDefault();
+      void runCommand('java Main.java');
+    }
   }
 
   return (
@@ -89,9 +244,9 @@ export default function Home() {
       <aside className="course-rail">
         <div className="brand-lockup">
           <span className="brand-mark">J_</span>
-          <div><strong>Studio Java</strong><span>Personal learning lab</span></div>
+          <div><strong>Studio Java</strong><span>Corso pratico su GitHub</span></div>
         </div>
-        <div className="rail-label">Percorso</div>
+        <div className="rail-label">Percorso accademico</div>
         <nav aria-label="Lezioni del corso" className="lesson-list">
           {roadmap.map((item) => (
             <button className={`lesson-row ${item.status === 'available' ? 'active' : ''}`} disabled={item.status !== 'available'} key={item.number}>
@@ -104,27 +259,36 @@ export default function Home() {
             </button>
           ))}
         </nav>
+        <div className="release-note">
+          <CalendarClock />
+          <div><strong>Nuovo materiale</strong><span>Ogni due settimane</span></div>
+        </div>
         <div className="rail-footer">
-          <div><span className="status-dot" />Baseline JDK 25 LTS</div>
-          {githubUrl ? <a href={githubUrl} target="_blank" rel="noreferrer"><Github /> Apri repository</a> : <span><Github /> GitHub da collegare</span>}
+          <div><span className="status-dot" />Java 25 LTS</div>
+          <div><span className="version-dot">v</span>Versione {APP_VERSION}</div>
+          <a href={githubUrl} target="_blank" rel="noreferrer"><Github /> GitHub</a>
         </div>
       </aside>
 
       <section className="workspace">
-        <header className="topbar">
-          <div><div className="breadcrumb">Fondamenta <ChevronRight /> Lezione 01</div><h1>{lessonOne.title}</h1></div>
-          <div className="top-actions">
-            <Progress value={progress} className="course-progress"><ProgressLabel>Progresso</ProgressLabel><span className="progress-value">{progress}%</span></Progress>
-            <Button variant="ghost" size="icon" onClick={resetProgress} aria-label="Azzera progressi"><RotateCcw /></Button>
-          </div>
-        </header>
-
         <Tabs value={tab} onValueChange={setTab} className="lesson-tabs">
-          <TabsList variant="line" className="tab-strip" aria-label="Fasi della lezione">
-            <TabsTrigger value="theory"><BookOpen /> Teoria</TabsTrigger>
-            <TabsTrigger value="quiz"><CircleDot /> Verifica {quizPassed && <Check className="tab-check" />}</TabsTrigger>
-            <TabsTrigger value="lab"><Code2 /> Laboratorio</TabsTrigger>
-          </TabsList>
+          <header className="topbar">
+            <div className="lesson-identity">
+              <div className="breadcrumb">Fondamenta <ChevronRight /> Lezione 01</div>
+              <h1>{lessonOne.title}</h1>
+            </div>
+            <TabsList className="header-tabs" aria-label="Fasi della lezione">
+              <TabsTrigger value="theory"><BookOpen /> <span>Teoria</span></TabsTrigger>
+              <TabsTrigger value="quiz"><CircleDot /> <span>Verifica</span>{quizPassed && <Check className="tab-check" />}</TabsTrigger>
+              <TabsTrigger value="lab"><Code2 /> <span>Laboratorio</span></TabsTrigger>
+            </TabsList>
+            <div className="top-actions">
+              <Progress value={progress} className="course-progress">
+                <ProgressLabel>Progresso</ProgressLabel><span className="progress-value">{progress}%</span>
+              </Progress>
+              <Button variant="ghost" size="icon" onClick={resetProgress} aria-label="Azzera progressi"><RotateCcw /></Button>
+            </div>
+          </header>
 
           <TabsContent value="theory" className="content-panel">
             <div className="theory-layout">
@@ -132,10 +296,7 @@ export default function Home() {
                 <div className="card-meta"><span>{section.kicker}</span><span>{slide + 1} / {lessonOne.theory.length}</span></div>
                 <h2>{inlineCode(section.title)}</h2>
                 <p className="lead">{section.lead}</p>
-                <div className="plain-language">
-                  <span>In parole semplici</span>
-                  <p>{inlineCode(section.plain)}</p>
-                </div>
+                <div className="plain-language"><span>In parole semplici</span><p>{inlineCode(section.plain)}</p></div>
                 {section.analogy && <div className="analogy"><span>Un’analogia utile</span><p>{inlineCode(section.analogy)}</p></div>}
                 <ul className="concept-list">
                   {section.points.map((point) => <li key={point}><span className="concept-bullet" /><span>{inlineCode(point)}</span></li>)}
@@ -185,12 +346,67 @@ export default function Home() {
             </div>
           </TabsContent>
 
-          <TabsContent value="lab" className="content-panel">
+          <TabsContent value="lab" className="content-panel lab-panel">
             <div className="lab-heading">
-              <div className="section-heading"><span>Scrivi tu il codice</span><h2>Statistiche di testo</h2><p>Lavora nel file indicato, una missione alla volta. I test sono la tua specifica.</p></div>
-              <div className="path-card"><TerminalSquare /><div><span>File da modificare</span><code>src/main/java/.../Exercise001TextStatistics.java</code></div></div>
+              <div className="section-heading"><span>Scrivi, compila, osserva</span><h2>Laboratorio interattivo</h2><p>Modifica <code>Main.java</code>, prevedi il risultato e verifica la tua ipotesi nel container isolato.</p></div>
+              <div className={`sandbox-badge ${sandbox.available ? 'ready' : 'offline'}`}>
+                <ShieldCheck /><div><span>Sandbox Docker</span><strong>{sandbox.available ? 'Pronta' : 'Da configurare'}</strong></div>
+              </div>
             </div>
             {!quizPassed && <div className="warning-banner"><Lightbulb /> Ti consiglio di superare prima la verifica.<Button variant="link" onClick={() => setTab('quiz')}>Vai alla verifica</Button></div>}
+
+            <div className="lab-studio">
+              <section className="editor-card" aria-label="Editor Java">
+                <div className="ide-toolbar">
+                  <div className="file-tab"><Code2 /> Main.java <span>{code.length} caratteri</span></div>
+                  <div className="editor-actions">
+                    <Button size="sm" variant="outline" disabled={running || !sandbox.available} onClick={() => void runCommand('javac Main.java')}>Compila</Button>
+                    <Button size="sm" disabled={running || !sandbox.available} onClick={() => void runCommand('java Main.java')}>
+                      {running ? <LoaderCircle className="spin" /> : <Play />} Esegui
+                    </Button>
+                  </div>
+                </div>
+                <div className="editor-surface">
+                  <div className="line-numbers" aria-hidden="true">{lineNumbers.map((line) => <span key={line}>{line}</span>)}</div>
+                  <textarea
+                    aria-label="Codice Java nel file Main.java"
+                    value={code}
+                    onChange={(event) => setCode(event.target.value)}
+                    onKeyDown={editorShortcut}
+                    spellCheck={false}
+                  />
+                </div>
+                <div className="editor-footer"><span>Java 25</span><span>Ctrl + Invio per eseguire</span><span>Salvataggio locale automatico</span></div>
+              </section>
+
+              <section className="terminal-card" aria-label="Terminale Java limitato">
+                <div className="terminal-toolbar">
+                  <div><TerminalSquare /><strong>Terminale</strong></div>
+                  <button type="button" onClick={() => setTerminalEntries([])}>Pulisci</button>
+                </div>
+                <div className="terminal-output" aria-live="polite">
+                  <div className="terminal-welcome"><Container /><p><strong>Ambiente isolato</strong><span>{sandbox.message}</span></p></div>
+                  {terminalEntries.map((entry) => <div className="terminal-entry" key={entry.id}>
+                    <div className="terminal-command"><span>$</span> {entry.command}</div>
+                    <pre className={entry.ok ? 'success' : 'error'}>{entry.output}</pre>
+                    {entry.meta && <small>{entry.meta}</small>}
+                  </div>)}
+                  {running && <div className="terminal-running"><LoaderCircle className="spin" /> Container in esecuzione…</div>}
+                </div>
+                <form className="terminal-prompt" onSubmit={(event) => { event.preventDefault(); void runCommand(); }}>
+                  <label htmlFor="terminal-command">$</label>
+                  <input id="terminal-command" value={command} onChange={(event) => setCommand(event.target.value)} autoComplete="off" spellCheck={false} aria-describedby="terminal-help" />
+                  <Button type="submit" size="sm" disabled={running}>Invio</Button>
+                </form>
+                <small id="terminal-help" className="terminal-help">Scrivi <code>help</code> per vedere i comandi consentiti. Nessuna shell del PC viene esposta.</small>
+              </section>
+            </div>
+
+            <div className="sandbox-explainer">
+              <ShieldCheck />
+              <div><strong>Il codice non viene eseguito direttamente sul computer</strong><p>Ogni comando usa un container temporaneo senza rete, con memoria, CPU, processi e tempo limitati. Al termine l’ambiente viene eliminato.</p></div>
+            </div>
+
             <div className="mission-grid">
               {lessonOne.lab.map((mission, index) => <article className="mission-card" key={mission.method}>
                 <div className="mission-topline"><span>{mission.title}</span><code>{mission.method}()</code></div>
@@ -199,14 +415,14 @@ export default function Home() {
                   <div><h4>Vincoli</h4><ul>{mission.constraints.map((item) => <li key={item}>{item}</li>)}</ul></div>
                   <div><h4>Esempi</h4>{mission.examples.map((item) => <code className="example-line" key={item}>{item}</code>)}</div>
                 </div>
-                <label className="mission-check" htmlFor={`mission-${index}`}><Checkbox id={`mission-${index}`} checked={labChecks[index]} onCheckedChange={(checked) => setLabChecks(labChecks.map((value, itemIndex) => itemIndex === index ? checked === true : value))} />Ho scritto il metodo e i test passano</label>
+                <label className="mission-check" htmlFor={`mission-${index}`}><Checkbox id={`mission-${index}`} checked={labChecks[index]} onCheckedChange={(checked) => setLabChecks(labChecks.map((value, itemIndex) => itemIndex === index ? checked === true : value))} />Ho implementato il metodo e verificato i casi limite</label>
               </article>)}
             </div>
             <div className="lab-bottom">
-              <div className="command-card"><span>Quando sei pronto</span><code>mvn test</code><small>Prima rimuovi @Disabled dal test dell’esercizio 001.</small></div>
+              <div className="command-card"><span>Comando consigliato</span><code>java Main.java</code><small>Compila ed esegue il file sorgente nel container temporaneo.</small></div>
               <label className="notes-card" htmlFor="lab-notes"><span>Diario rapido</span><textarea id="lab-notes" value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Errore, causa, cosa hai imparato…" /></label>
             </div>
-            {labChecks.every(Boolean) && <div className={`completion-card ${completed ? 'done' : ''}`}><CheckCircle2 /><div><span>{completed ? 'Lezione completata' : 'Ultimo checkpoint'}</span><h3>{completed ? 'Riscrivi domani la parte centrale senza guardare.' : 'Se tutti i test sono verdi, completa la lezione.'}</h3></div>{!completed && <Button onClick={() => setCompleted(true)}>Segna come completata</Button>}</div>}
+            {labChecks.every(Boolean) && <div className={`completion-card ${completed ? 'done' : ''}`}><CheckCircle2 /><div><span>{completed ? 'Lezione completata' : 'Ultimo checkpoint'}</span><h3>{completed ? 'Riscrivi domani la parte centrale senza guardare.' : 'Se output e casi limite sono corretti, completa la lezione.'}</h3></div>{!completed && <Button onClick={() => setCompleted(true)}>Segna come completata</Button>}</div>}
           </TabsContent>
         </Tabs>
       </section>

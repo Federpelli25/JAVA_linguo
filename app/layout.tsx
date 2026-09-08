@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Studio Java · Personal Learning Lab',
-  description: 'Lezioni teoriche e laboratori pratici per imparare Java scrivendo codice.',
+  title: 'Studio Java · Impara Java con teoria e laboratorio',
+  description: 'Corso open source di Java con lezioni universitarie, verifiche ed esecuzione del codice in una sandbox Docker locale.',
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
