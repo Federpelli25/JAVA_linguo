@@ -35,7 +35,7 @@ jobs:
           python-version: "3.13"
 
       - name: Installa dipendenze bloccate dal lockfile
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Controlla vulnerabilità npm
         run: npm audit --audit-level=high

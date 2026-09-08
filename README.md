@@ -1,6 +1,6 @@
 # Studio Java
 
-[![Versione](https://img.shields.io/badge/versione-0.3.0-006b57)](https://github.com/Federpelli25/JAVA_linguo/releases)
+[![Versione](https://img.shields.io/badge/versione-0.3.1-006b57)](https://github.com/Federpelli25/JAVA_linguo/releases)
 [![Java](https://img.shields.io/badge/Java-25%20LTS-e76f00)](https://www.oracle.com/java/technologies/java-se-support-roadmap.html)
 
 Studio Java è un'applicazione didattica locale disponibile pubblicamente su GitHub per studiare Java con un percorso strutturato: prima la teoria, poi la verifica e infine il laboratorio pratico. Le spiegazioni e gli esercizi seguono un livello di approfondimento simile a un corso universitario.

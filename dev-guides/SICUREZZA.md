@@ -39,6 +39,7 @@ La sandbox è destinata all'uso locale da parte di una persona. Non presentarla 
 ## Dipendenze e GitHub
 
 - Mantenere versioni esatte e lockfile aggiornato.
+- In CI e nelle release usare `npm ci --ignore-scripts`; abilitare script di installazione soltanto dopo una revisione esplicita della dipendenza che li richiede.
 - Non usare `npm audit fix --force` senza analisi della compatibilità.
 - Le GitHub Actions devono essere fissate a commit completi e aggiornate da Dependabot.
 - CI, CodeQL e Dependency Review devono restare attivi.

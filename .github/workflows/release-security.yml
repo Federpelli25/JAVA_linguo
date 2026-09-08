@@ -28,7 +28,7 @@ jobs:
           cache: npm
 
       - name: Installa dipendenze bloccate dal lockfile
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Genera archivio, SBOM e checksum
         shell: bash

@@ -2,6 +2,13 @@
 
 Tutte le modifiche rilevanti di Studio Java sono documentate in questo file. Il progetto segue il versionamento semantico.
 
+## [0.3.1] - 2026-09-08
+
+### Corretto
+
+- reso il lockfile npm portabile anche sui runner Linux includendo esplicitamente le dipendenze WebAssembly necessarie alla build;
+- disattivati gli script di installazione npm nelle pipeline CI e di release per ridurre la superficie di attacco della supply chain.
+
 ## [0.3.0] - 2026-09-08
 
 ### Sicurezza
