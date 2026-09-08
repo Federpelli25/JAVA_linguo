@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -384,6 +385,59 @@ export default function Home() {
             </div>
             {!quizPassed && <div className="warning-banner"><Lightbulb /> Ti consiglio di superare prima la verifica.<Button variant="link" onClick={() => setTab('quiz')}>Vai alla verifica</Button></div>}
 
+            <section className="lab-briefing" aria-labelledby="lab-briefing-title">
+              <div className="lab-briefing-copy">
+                <span>Metodo di lavoro</span>
+                <h3 id="lab-briefing-title">Affronta una missione alla volta</h3>
+                <p>Nel file iniziale trovi lo scheletro della Missione A. Completa e verifica quel metodo, poi aggiungi sotto di esso i metodi delle Missioni B e C. Aggiorna il <code>main</code> con piccoli casi di prova per osservare ogni risultato.</p>
+              </div>
+              <ol className="lab-workflow">
+                <li><span>1</span><div><strong>Prevedi</strong><small>Scrivi su carta il risultato di almeno un esempio.</small></div></li>
+                <li><span>2</span><div><strong>Implementa</strong><small>Digita il metodo a mano seguendo il contratto, senza copiare una soluzione.</small></div></li>
+                <li><span>3</span><div><strong>Verifica</strong><small>Compila, esegui e prova casi normali, limite e non validi.</small></div></li>
+                <li><span>4</span><div><strong>Spiega</strong><small>Motiva la scelta richiesta nel diario prima di spuntare la missione.</small></div></li>
+              </ol>
+            </section>
+
+            <Accordion className="mission-grid" defaultValue={['countVowels']}>
+              {lessonOne.lab.map((mission, index) => <AccordionItem className="mission-card" value={mission.method} key={mission.method}>
+                <AccordionTrigger className="mission-trigger">
+                  <div className="mission-topline"><span>{mission.title}</span><code>{mission.method}()</code></div>
+                </AccordionTrigger>
+                <AccordionContent className="mission-content">
+                  <p className="mission-scenario">{mission.scenario}</p>
+                  <div className="mission-goal">
+                    <span>Consegna</span>
+                    <h3>{mission.goal}</h3>
+                    <code>{mission.signature}</code>
+                  </div>
+                  <div className="mission-roadmap">
+                    <h4>Procedura consigliata</h4>
+                    <ol>{mission.steps.map((step) => <li key={step}>{step}</li>)}</ol>
+                  </div>
+                  <div className="mission-columns">
+                    <div><h4>Vincoli tecnici</h4><ul>{mission.constraints.map((item) => <li key={item}>{item}</li>)}</ul></div>
+                    <div>
+                      <h4>Casi da verificare</h4>
+                      <div className="example-list">{mission.examples.map((example) => <div className="example-row" key={`${example.input}-${example.output}`}>
+                        <div><code>{example.input}</code><span aria-hidden="true">→</span><code>{example.output}</code></div>
+                        <small>{example.purpose}</small>
+                      </div>)}</div>
+                    </div>
+                  </div>
+                  <div className="mission-acceptance">
+                    <h4>Quando la missione è completa</h4>
+                    <ul>{mission.acceptance.map((item) => <li key={item}><Check />{item}</li>)}</ul>
+                  </div>
+                  <div className="mission-prompts">
+                    <div><span>Spiega la tua scelta</span><p>{mission.reflection}</p></div>
+                    <div><span>Sfida facoltativa</span><p>{mission.challenge}</p></div>
+                  </div>
+                  <label className="mission-check" htmlFor={`mission-${index}`}><Checkbox id={`mission-${index}`} checked={labChecks[index]} onCheckedChange={(checked) => setLabChecks(labChecks.map((value, itemIndex) => itemIndex === index ? checked === true : value))} />Ho implementato il metodo, verificato tutti i casi e scritto la motivazione</label>
+                </AccordionContent>
+              </AccordionItem>)}
+            </Accordion>
+
             <div className="lab-studio">
               <section className="editor-card" aria-label="Editor Java">
                 <div className="ide-toolbar">
@@ -434,18 +488,6 @@ export default function Home() {
             <div className="sandbox-explainer">
               <ShieldCheck />
               <div><strong>Il codice non viene eseguito direttamente sul computer</strong><p>Ogni comando usa un container temporaneo senza rete, con memoria, CPU, processi e tempo limitati. Al termine l’ambiente viene eliminato.</p></div>
-            </div>
-
-            <div className="mission-grid">
-              {lessonOne.lab.map((mission, index) => <article className="mission-card" key={mission.method}>
-                <div className="mission-topline"><span>{mission.title}</span><code>{mission.method}()</code></div>
-                <h3>{mission.goal}</h3>
-                <div className="mission-columns">
-                  <div><h4>Vincoli</h4><ul>{mission.constraints.map((item) => <li key={item}>{item}</li>)}</ul></div>
-                  <div><h4>Esempi</h4>{mission.examples.map((item) => <code className="example-line" key={item}>{item}</code>)}</div>
-                </div>
-                <label className="mission-check" htmlFor={`mission-${index}`}><Checkbox id={`mission-${index}`} checked={labChecks[index]} onCheckedChange={(checked) => setLabChecks(labChecks.map((value, itemIndex) => itemIndex === index ? checked === true : value))} />Ho implementato il metodo e verificato i casi limite</label>
-              </article>)}
             </div>
             <div className="lab-bottom">
               <div className="command-card"><span>Comando consigliato</span><code>java Main.java</code><small>Compila ed esegue il file sorgente nel container temporaneo.</small></div>

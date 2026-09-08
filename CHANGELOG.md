@@ -2,6 +2,15 @@
 
 Tutte le modifiche rilevanti di Studio Java sono documentate in questo file. Il progetto segue il versionamento semantico.
 
+## [0.2.2] - 2026-09-08
+
+### Migliorato
+
+- consegne delle tre missioni di laboratorio ampliate con scenario, contratto e procedura guidata;
+- casi normali, limite e non validi presentati insieme al motivo per cui devono essere provati;
+- criteri di completamento, riflessione progettuale e sfida facoltativa resi espliciti;
+- flusso del laboratorio riordinato per leggere la consegna prima di usare editor e terminale.
+
 ## [0.2.1] - 2026-09-08
 
 ### Migliorato

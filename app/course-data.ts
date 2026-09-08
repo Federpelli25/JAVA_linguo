@@ -22,9 +22,15 @@ export type QuizQuestion = {
 export type LabMission = {
   method: string;
   title: string;
+  signature: string;
+  scenario: string;
   goal: string;
+  steps: string[];
   constraints: string[];
-  examples: string[];
+  examples: { input: string; output: string; purpose: string }[];
+  acceptance: string[];
+  reflection: string;
+  challenge: string;
 };
 
 export const lessonOne = {
@@ -253,9 +259,102 @@ export const lessonOne = {
     { id: 'q7', question: 'Quante volte entra nel ciclo una String vuota?', options: [{ id: 'a', label: 'Zero' }, { id: 'b', label: 'Una' }, { id: 'c', label: 'Dipende dal carattere' }], correct: 'a', explanation: 'All’inizio 0 < 0 è già falso, quindi il corpo non viene eseguito.' },
   ] satisfies QuizQuestion[],
   lab: [
-    { method: 'countVowels', title: 'Missione A · Conta le vocali', goal: 'Visita il testo e conta a, e, i, o, u ignorando maiuscole e minuscole.', constraints: ['Niente stream o espressioni regolari.', 'Gestisci null prima del ciclo.', 'Normalizza il singolo carattere.'], examples: ['"Educazione" → 6', '"rhythm" → 0', '"" → 0'] },
-    { method: 'countWords', title: 'Missione B · Conta le parole', goal: 'Conta le sequenze separate da uno o più caratteri spazio.', constraints: ['Non contare ogni spazio.', 'Riconosci la transizione fuori → dentro.', 'Solo spazi significa zero parole.'], examples: ['"Java si impara" → 3', '"  uno   due  " → 2', '"   " → 0'] },
-    { method: 'reverse', title: 'Missione C · Inverti il testo', goal: 'Costruisci una nuova stringa visitando i caratteri nella direzione corretta.', constraints: ['Usa un ciclo e StringBuilder.', 'Non usare reverse() della libreria.', 'Verifica zero e un carattere.'], examples: ['"Java" → "avaJ"', '"A" → "A"', '"" → ""'] },
+    {
+      method: 'countVowels',
+      title: 'Missione A · Conta le vocali',
+      signature: 'static int countVowels(String text)',
+      scenario: 'Stai costruendo una piccola analisi di leggibilità. Il primo indicatore richiesto è il numero di vocali presenti in un testo, senza distinguere tra lettere maiuscole e minuscole.',
+      goal: 'Completa il metodo in modo che restituisca quante volte compaiono a, e, i, o oppure u. Se text è null, il metodo deve interrompersi con IllegalArgumentException.',
+      steps: [
+        'Prima di scrivere codice, scorri a mano “Educazione” e annota quali caratteri fanno aumentare il contatore.',
+        'Gestisci null prima di chiamare qualsiasi metodo su text, poi prepara un contatore iniziale.',
+        'Visita la String dall’indice 0 all’ultimo indice valido e normalizza soltanto il carattere corrente.',
+        'Incrementa il contatore esclusivamente quando il carattere normalizzato è una delle cinque vocali richieste.',
+        'Restituisci il totale e confrontalo con tutti i casi di prova, non soltanto con l’esempio iniziale.',
+      ],
+      constraints: [
+        'Usa un ciclo indicizzato: niente Stream o espressioni regolari, perché qui stai allenando indici e accumulatore.',
+        'Non modificare il parametro e non trasformare tutta la String: normalizza il singolo char mentre lo visiti.',
+        'Per null lancia IllegalArgumentException; la String vuota è invece un input valido e produce 0.',
+      ],
+      examples: [
+        { input: '"Educazione"', output: '6', purpose: 'Caso normale con una vocale maiuscola.' },
+        { input: '"rhythm"', output: '0', purpose: 'Testo senza le cinque vocali richieste.' },
+        { input: '""', output: '0', purpose: 'Il ciclo non deve iniziare.' },
+        { input: 'null', output: 'IllegalArgumentException', purpose: 'Input non valido da bloccare subito.' },
+      ],
+      acceptance: [
+        'Il file compila senza errori e il metodo restituisce un int.',
+        'Maiuscole, minuscole, testo vuoto e testo senza vocali producono il risultato atteso.',
+        'null genera esattamente IllegalArgumentException prima del ciclo.',
+      ],
+      reflection: 'Perché il contatore deve essere dichiarato prima del ciclo? Spiegalo usando il concetto di risultato parziale.',
+      challenge: 'Decidi se à, è, ì, ò e ù devono contare. Prima scrivi il nuovo contratto, poi modifica test e implementazione.',
+    },
+    {
+      method: 'countWords',
+      title: 'Missione B · Conta le parole',
+      signature: 'static int countWords(String text)',
+      scenario: 'Lo stesso analizzatore deve ora stimare la lunghezza di una frase contando le parole. Nel contratto di questa missione una parola è una sequenza di caratteri diversi dallo spazio semplice.',
+      goal: 'Aggiungi un metodo che conti gli ingressi in una nuova parola. Più spazi consecutivi rappresentano un solo separatore; spazi iniziali o finali non creano parole.',
+      steps: [
+        'Traccia “  uno   due  ” indicando per ogni carattere se ti trovi fuori o dentro una parola.',
+        'Gestisci null, inizializza il conteggio e scegli uno stato booleano che descriva la posizione corrente.',
+        'Quando leggi un carattere non spazio mentre sei fuori, hai trovato l’inizio di una nuova parola: conta una sola volta e cambia stato.',
+        'Quando leggi uno spazio, torna nello stato fuori; gli altri caratteri continuano la parola corrente.',
+        'Aggiungi chiamate di prova nel main e verifica anche stringa vuota, soli spazi e parole di un carattere.',
+      ],
+      constraints: [
+        'Non usare split(), trim(), Stream o espressioni regolari: il risultato deve derivare dalle transizioni di stato.',
+        'In questa missione è separatore soltanto il carattere spazio \' \'; tab e a capo restano fuori dal contratto base.',
+        'Per null lancia IllegalArgumentException; non accedere a text prima della validazione.',
+      ],
+      examples: [
+        { input: '"Java si impara"', output: '3', purpose: 'Tre gruppi separati da uno spazio.' },
+        { input: '"  uno   due  "', output: '2', purpose: 'Spazi multipli e ai bordi.' },
+        { input: '"   "', output: '0', purpose: 'Nessun ingresso nello stato “dentro”.' },
+        { input: 'null', output: 'IllegalArgumentException', purpose: 'Caso non valido esplicito.' },
+      ],
+      acceptance: [
+        'Il conteggio aumenta soltanto nella transizione fuori → dentro.',
+        'Spazi consecutivi, iniziali e finali non alterano il risultato.',
+        'Il metodo gestisce correttamente testo vuoto, soli spazi e null.',
+      ],
+      reflection: 'Perché contare i caratteri non spazio darebbe un risultato diverso dal numero di parole? Descrivi un input che dimostri la differenza.',
+      challenge: 'Estendi il contratto affinché tab e a capo siano separatori usando Character.isWhitespace, poi aggiungi almeno due nuovi test.',
+    },
+    {
+      method: 'reverse',
+      title: 'Missione C · Inverti il testo',
+      signature: 'static String reverse(String text)',
+      scenario: 'L’ultima funzione dell’analizzatore deve creare un’anteprima speculare del testo. La String originale deve restare invariata e il risultato va costruito carattere per carattere.',
+      goal: 'Aggiungi un metodo che restituisca una nuova String con i caratteri in ordine inverso. Se text è null, lancia IllegalArgumentException.',
+      steps: [
+        'Scrivi gli indici di “Java” e stabilisci da quale posizione deve partire la lettura all’indietro.',
+        'Dopo la validazione crea un solo StringBuilder vuoto prima del ciclo.',
+        'Visita gli indici dall’ultimo valido fino a 0 e aggiungi al builder il carattere corrente.',
+        'Converti il builder in String soltanto al termine dell’iterazione.',
+        'Verifica il risultato con più caratteri, un solo carattere, String vuota e null.',
+      ],
+      constraints: [
+        'Usa un ciclo indicizzato e StringBuilder per rendere visibile la direzione dell’algoritmo.',
+        'Non usare StringBuilder.reverse(), collezioni o scorciatoie equivalenti.',
+        'Non modificare text; per null lancia IllegalArgumentException.',
+      ],
+      examples: [
+        { input: '"Java"', output: '"avaJ"', purpose: 'Caso normale con quattro caratteri.' },
+        { input: '"A"', output: '"A"', purpose: 'Primo caso limite sugli indici.' },
+        { input: '""', output: '""', purpose: 'Nessun indice valido da visitare.' },
+        { input: 'null', output: 'IllegalArgumentException', purpose: 'Validazione prima dell’elaborazione.' },
+      ],
+      acceptance: [
+        'Il risultato contiene esattamente gli stessi caratteri in ordine opposto.',
+        'String di lunghezza zero e uno non causano errori di indice.',
+        'L’implementazione usa un solo builder e rifiuta null come richiesto.',
+      ],
+      reflection: 'Perché il primo indice è text.length() - 1? Spiega anche perché lo stesso valore rende sicura la String vuota.',
+      challenge: 'Usa il metodo per verificare se una parola è palindroma ignorando maiuscole e minuscole, senza cambiare reverse().',
+    },
   ] satisfies LabMission[],
 };
 
