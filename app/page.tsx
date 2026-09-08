@@ -132,10 +132,16 @@ export default function Home() {
                 <div className="card-meta"><span>{section.kicker}</span><span>{slide + 1} / {lessonOne.theory.length}</span></div>
                 <h2>{inlineCode(section.title)}</h2>
                 <p className="lead">{section.lead}</p>
+                <div className="plain-language">
+                  <span>In parole semplici</span>
+                  <p>{inlineCode(section.plain)}</p>
+                </div>
+                {section.analogy && <div className="analogy"><span>Un’analogia utile</span><p>{inlineCode(section.analogy)}</p></div>}
                 <ul className="concept-list">
                   {section.points.map((point) => <li key={point}><span className="concept-bullet" /><span>{inlineCode(point)}</span></li>)}
                 </ul>
                 {section.code && <pre className="code-window"><span>JAVA</span><code>{section.code}</code></pre>}
+                {section.walkthrough && <div className="walkthrough"><span>Passo per passo</span><ol>{section.walkthrough.map((step) => <li key={step}>{inlineCode(step)}</li>)}</ol></div>}
                 <div className="callout"><Lightbulb /><p>{inlineCode(section.callout)}</p></div>
                 <div className="lesson-controls">
                   <Button variant="outline" onClick={() => setSlide(Math.max(0, slide - 1))} disabled={slide === 0}><ArrowLeft /> Indietro</Button>
@@ -146,7 +152,7 @@ export default function Home() {
               </article>
               <aside className="study-aside">
                 <div className="session-card"><GraduationCap /><div><span>Sessione</span><strong>{lessonOne.duration}</strong></div></div>
-                <div className="aside-card"><b>Prima di proseguire</b><p>Spiega il concetto a voce senza rileggere la scheda.</p></div>
+                <div className="aside-card question-card"><b>Prima di proseguire</b><p>{inlineCode(section.question)}</p><small>Rispondi a voce senza rileggere.</small></div>
                 <div className="slide-map">
                   {lessonOne.theory.map((item, index) => (
                     <button key={item.title} className={index === slide ? 'current' : index < slide ? 'visited' : ''} onClick={() => setSlide(index)} aria-label={`Scheda ${index + 1}`}>

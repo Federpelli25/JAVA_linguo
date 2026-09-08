@@ -1,5 +1,7 @@
 # Studio Java — applicazione locale
 
+Repository: [Federpelli25/JAVA_linguo](https://github.com/Federpelli25/JAVA_linguo)
+
 ## Avvio
 
 Fai doppio clic su `AVVIA_STUDIO_JAVA.bat`, oppure esegui:

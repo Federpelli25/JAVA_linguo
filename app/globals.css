@@ -55,10 +55,18 @@ p code,li code,h2 code { border-radius:.35rem; background:#dfe9e5; color:#005846
 .card-meta { display:flex; justify-content:space-between; color:var(--primary); font:700 .72rem var(--font-mono); letter-spacing:.11em; text-transform:uppercase; }
 .lesson-card h2,.section-heading h2 { max-width:46rem; margin:1rem 0 0; font-size:clamp(1.9rem,4vw,3.45rem); line-height:1.03; letter-spacing:-.055em; }
 .lead { max-width:47rem; margin:1.25rem 0 1.5rem; color:#4f5f5a; font-size:1.07rem; line-height:1.65; }
+.plain-language { margin:0 0 1rem; border:1px solid #b8d9d0; border-radius:.85rem; padding:1rem 1.1rem; background:#f2faf7; }
+.plain-language>span,.analogy>span,.walkthrough>span { color:var(--primary); font:700 .7rem var(--font-mono); letter-spacing:.09em; text-transform:uppercase; }
+.plain-language p,.analogy p { margin:.45rem 0 0; color:#344a44; font-size:1rem; line-height:1.65; }
+.analogy { margin:0 0 1.35rem; border-left:3px solid var(--cyan); padding:.35rem 0 .35rem 1rem; }
+.analogy>span { color:#367b6b; } .analogy p { color:#52645f; font-size:.94rem; }
 .concept-list { display:grid; gap:.75rem; margin:0 0 1.7rem; padding:0; list-style:none; }
 .concept-list li { display:flex; gap:.75rem; line-height:1.55; } .concept-bullet { flex:0 0 auto; width:.5rem; height:.5rem; margin-top:.5rem; border-radius:.15rem; background:var(--cyan); transform:rotate(45deg); }
 .code-window { position:relative; overflow-x:auto; border:1px solid #1d3a33; border-radius:.85rem; margin:0; padding:2.5rem 1.25rem 1.3rem; background:var(--code); color:#d8eee7; font-size:.88rem; line-height:1.7; }
 .code-window>span { position:absolute; top:.7rem; left:1.25rem; color:var(--lime); font-size:.62rem; font-weight:700; letter-spacing:.14em; }
+.walkthrough { margin-top:1rem; border:1px solid var(--border); border-radius:.8rem; padding:1rem 1.1rem; background:#fbfcfc; }
+.walkthrough ol { display:grid; gap:.55rem; margin:.7rem 0 0; padding-left:1.3rem; color:#445650; font-size:.92rem; line-height:1.55; }
+.walkthrough li::marker { color:var(--primary); font-family:var(--font-mono); font-weight:700; }
 .callout { display:flex; gap:.75rem; margin-top:1.2rem; border-left:3px solid var(--lime); padding:.85rem 1rem; background:#f2f8e1; }
 .callout svg { flex:0 0 auto; width:1.1rem; color:#607c00; } .callout p { margin:0; color:#40502b; line-height:1.5; }
 .lesson-controls { display:flex; justify-content:space-between; gap:1rem; margin-top:2.2rem; border-top:1px solid var(--border); padding-top:1.25rem; }
@@ -66,6 +74,7 @@ p code,li code,h2 code { border-radius:.35rem; background:#dfe9e5; color:#005846
 .session-card { display:flex; align-items:center; gap:.75rem; background:var(--rail); color:#fff; } .session-card>svg { width:1.35rem; color:var(--lime); }
 .session-card div { display:grid; } .session-card span { color:#8fa39d; font-size:.7rem; } .session-card strong { font:600 .83rem var(--font-mono); }
 .aside-card b { color:#687b75; font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; } .aside-card p { margin:.65rem 0 0; color:#4c5d57; font-size:.83rem; line-height:1.5; }
+.question-card { border-color:#b8d8cf; background:#f5fbf8; } .question-card p code { font-size:.82em; } .question-card small { display:block; margin-top:.7rem; color:#778984; font-size:.72rem; line-height:1.4; }
 .slide-map { display:grid; gap:.35rem; padding:.6rem 0; } .slide-map button { display:flex; align-items:center; gap:.6rem; border:0; padding:.28rem; background:transparent; color:#7c8a86; text-align:left; }
 .slide-map button>span { display:grid; width:1.65rem; height:1.65rem; place-items:center; border:1px solid #cad5d1; border-radius:50%; background:#eef3f1; font:600 .65rem var(--font-mono); }
 .slide-map button.current { color:var(--foreground); font-weight:650; } .slide-map button.current>span { border-color:var(--primary); background:var(--primary); color:#fff; } .slide-map button.visited>span { border-color:#9ed9c9; color:var(--primary); } .slide-map svg { width:.85rem; } .slide-map small { font-size:.72rem; }
