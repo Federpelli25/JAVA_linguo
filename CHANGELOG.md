@@ -2,6 +2,13 @@
 
 Tutte le modifiche rilevanti di Studio Java sono documentate in questo file. Il progetto segue il versionamento semantico.
 
+## [0.2.1] - 2026-09-08
+
+### Migliorato
+
+- finestra di conferma per l'azzeramento coerente con lo stile dell'app e accessibile da tastiera;
+- barre di scorrimento verticali nascoste mantenendo rotellina, touchpad e navigazione da tastiera.
+
 ## [0.2.0] - 2026-09-08
 
 ### Aggiunto

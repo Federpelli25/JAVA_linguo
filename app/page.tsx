@@ -24,6 +24,18 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Progress, ProgressLabel } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -86,6 +98,7 @@ export default function Home() {
   const [labChecks, setLabChecks] = useState([false, false, false]);
   const [notes, setNotes] = useState('');
   const [completed, setCompleted] = useState(false);
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const [code, setCode] = useState(INITIAL_CODE);
   const [command, setCommand] = useState('java Main.java');
   const [terminalEntries, setTerminalEntries] = useState<TerminalEntry[]>([]);
@@ -168,7 +181,6 @@ export default function Home() {
   const lineNumbers = useMemo(() => code.split('\n').map((_, index) => index + 1), [code]);
 
   function resetProgress() {
-    if (!window.confirm('Vuoi azzerare progressi, note e codice della lezione 01?')) return;
     window.localStorage.removeItem(STORAGE_KEY);
     setTab('theory');
     setSlide(0);
@@ -286,7 +298,24 @@ export default function Home() {
               <Progress value={progress} className="course-progress">
                 <ProgressLabel>Progresso</ProgressLabel><span className="progress-value">{progress}%</span>
               </Progress>
-              <Button variant="ghost" size="icon" onClick={resetProgress} aria-label="Azzera progressi"><RotateCcw /></Button>
+              <AlertDialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
+                <AlertDialogTrigger render={<Button variant="ghost" size="icon" />} aria-label="Azzera progressi">
+                  <RotateCcw />
+                </AlertDialogTrigger>
+                <AlertDialogContent className="reset-dialog">
+                  <AlertDialogHeader>
+                    <AlertDialogMedia className="reset-dialog-icon"><RotateCcw /></AlertDialogMedia>
+                    <AlertDialogTitle>Azzerare questa lezione?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Verranno cancellati progressi, risposte, appunti e codice salvati per la lezione 01. L’operazione non può essere annullata.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Continua a studiare</AlertDialogCancel>
+                    <AlertDialogAction variant="destructive" onClick={() => { resetProgress(); setResetDialogOpen(false); }}>Azzera progressi</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </header>
 
