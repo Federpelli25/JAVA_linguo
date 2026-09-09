@@ -1,6 +1,8 @@
 'use client';
 
 import { KeyboardEvent, useEffect, useMemo, useState } from 'react';
+import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import {
   ArrowLeft,
   ArrowRight,
@@ -83,6 +85,10 @@ const INITIAL_CODE = `public class Main {
         return 0;
     }
 }`;
+const JavaCodeEditor = dynamic(() => import('./java-code-editor'), {
+  ssr: false,
+  loading: () => <output className="editor-loading">Caricamento editor Java…</output>,
+});
 
 function inlineCode(text: string) {
   return text.split(/(`[^`]+`)/g).map((part, index) =>
@@ -180,8 +186,6 @@ export default function Home() {
       + (labChecks.filter(Boolean).length / labChecks.length) * 35,
   ));
   const section = lessonOne.theory[slide];
-  const lineNumbers = useMemo(() => code.split('\n').map((_, index) => index + 1), [code]);
-
   function resetProgress() {
     window.localStorage.removeItem(STORAGE_KEY);
     window.localStorage.removeItem(LEGACY_STORAGE_KEY);
@@ -247,7 +251,7 @@ export default function Home() {
     }
   }
 
-  function editorShortcut(event: KeyboardEvent<HTMLTextAreaElement>) {
+  function editorShortcut(event: KeyboardEvent<HTMLDivElement>) {
     if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
       event.preventDefault();
       void runCommand('java Main.java');
@@ -258,7 +262,7 @@ export default function Home() {
     <main className="app-shell">
       <aside className="course-rail">
         <div className="brand-lockup">
-          <span className="brand-mark">J_</span>
+          <span className="brand-mark" aria-hidden="true"><Image src="/favicon.svg" alt="" width={45} height={45} unoptimized /></span>
           <div><strong>JAVA_linguo</strong><span>Corso pratico su GitHub</span></div>
         </div>
         <div className="rail-label">Percorso accademico</div>
@@ -451,15 +455,8 @@ export default function Home() {
                     </Button>
                   </div>
                 </div>
-                <div className="editor-surface">
-                  <div className="line-numbers" aria-hidden="true">{lineNumbers.map((line) => <span key={line}>{line}</span>)}</div>
-                  <textarea
-                    aria-label="Codice Java nel file Main.java"
-                    value={code}
-                    onChange={(event) => setCode(event.target.value)}
-                    onKeyDown={editorShortcut}
-                    spellCheck={false}
-                  />
+                <div className="editor-surface" onKeyDownCapture={editorShortcut}>
+                  {tab === 'lab' && <JavaCodeEditor value={code} onChange={setCode} />}
                 </div>
                 <div className="editor-footer"><span>Java 25</span><span>Ctrl + Invio per eseguire</span><span>Salvataggio locale automatico</span></div>
               </section>
@@ -478,12 +475,15 @@ export default function Home() {
                   </div>)}
                   {running && <div className="terminal-running"><LoaderCircle className="spin" /> Container in esecuzione…</div>}
                 </div>
-                <form className="terminal-prompt" onSubmit={(event) => { event.preventDefault(); void runCommand(); }}>
-                  <label htmlFor="terminal-command">$</label>
-                  <input id="terminal-command" value={command} onChange={(event) => setCommand(event.target.value)} autoComplete="off" spellCheck={false} aria-describedby="terminal-help" />
-                  <Button type="submit" size="sm" disabled={running}>Invio</Button>
+                <form className="terminal-composer" onSubmit={(event) => { event.preventDefault(); void runCommand(); }}>
+                  <label htmlFor="terminal-command">Scrivi un comando</label>
+                  <div className="terminal-prompt">
+                    <span aria-hidden="true">$</span>
+                    <input id="terminal-command" value={command} onChange={(event) => setCommand(event.target.value)} autoComplete="off" spellCheck={false} aria-describedby="terminal-help" placeholder="es. java Main.java" />
+                    <Button type="submit" size="sm" disabled={running}>Invio</Button>
+                  </div>
+                  <small id="terminal-help" className="terminal-help">Scrivi <code>help</code> per vedere i comandi consentiti. Nessuna shell del PC viene esposta.</small>
                 </form>
-                <small id="terminal-help" className="terminal-help">Scrivi <code>help</code> per vedere i comandi consentiti. Nessuna shell del PC viene esposta.</small>
               </section>
             </div>
 

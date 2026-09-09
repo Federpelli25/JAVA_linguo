@@ -2,6 +2,23 @@
 
 Tutte le modifiche rilevanti di JAVA_linguo sono documentate in questo file. Il progetto segue il versionamento semantico.
 
+## [0.5.0] - 2026-09-09
+
+### Aggiunto
+
+- editor CodeMirror 6 con parser Java, tema ispirato a Visual Studio Code, numeri di riga ed evidenziazione sintattica durante la scrittura;
+- icona coordinata nell'interfaccia, nella schermata di avvio e nei metadati web, oltre ai formati nativi già inclusi negli installer;
+- etichetta visibile, esempio e stato di focus per il campo di scrittura del terminale.
+
+### Migliorato
+
+- guida d'installazione riorganizzata per sistema operativo, con scelta del file, primi passi e risoluzione dei problemi più comuni;
+- leggibilità e accessibilità dell'area di lavoro del laboratorio.
+
+### Corretto
+
+- reso affidabile il comando di build su Windows gestendo esclusivamente l'asserzione `libuv` emessa da Node dopo una compilazione già completata e verificata.
+
 ## [0.4.2] - 2026-09-09
 
 ### Corretto

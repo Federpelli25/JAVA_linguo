@@ -1,37 +1,85 @@
 # JAVA_linguo
 
-[![Versione](https://img.shields.io/badge/versione-0.4.2-006b57)](https://github.com/Federpelli25/JAVA_linguo/releases)
+[![Versione](https://img.shields.io/badge/versione-0.5.0-006b57)](https://github.com/Federpelli25/JAVA_linguo/releases)
 [![Java](https://img.shields.io/badge/Java-25%20LTS-e76f00)](https://www.oracle.com/java/technologies/java-se-support-roadmap.html)
 
 JAVA_linguo è un'applicazione didattica open source per studiare Java con un percorso strutturato: teoria, verifica e laboratorio pratico. Le spiegazioni e gli esercizi hanno un livello di approfondimento simile a un corso universitario.
 
 > **Nuovo materiale ogni due settimane.** Il progetto viene aggiornato con lezioni, esercizi, approfondimenti sulle versioni Java e miglioramenti dell'esperienza di studio.
 
-## Installazione dell'app
+## Installazione rapida
 
-Apri la pagina [Releases](https://github.com/Federpelli25/JAVA_linguo/releases), scegli la versione più recente e scarica il file adatto al computer:
+Non devi installare Python, Node.js o Java: l'app contiene già tutto ciò che serve per leggere le lezioni e svolgere le verifiche. Docker è necessario soltanto quando vuoi compilare ed eseguire il codice del laboratorio.
 
-- **Windows 64 bit:** `JAVA_linguo-...-windows-x64.setup.exe`;
-- **macOS Apple Silicon:** `JAVA_linguo-...-macos-arm64.dmg` per Mac con chip M1 o successivo;
-- **macOS Intel:** `JAVA_linguo-...-macos-x64.dmg`;
-- **Linux 64 bit:** `JAVA_linguo-...-linux-x64.AppImage` oppure il pacchetto `.deb`.
+### 1. Scarica il file corretto
 
-L'installer contiene l'interfaccia e il server locale: per usare l'app non servono Python, Node.js o un terminale. Il laboratorio richiede invece [Docker Desktop](https://www.docker.com/products/docker-desktop/) o Docker Engine avviato.
+Apri **[Releases → Latest](https://github.com/Federpelli25/JAVA_linguo/releases/latest)** e scegli il download per il tuo computer:
 
-Al primo utilizzo del laboratorio scarica l'immagine Java verificata:
+| Sistema | File da scaricare | Come scegliere |
+| --- | --- | --- |
+| Windows 10/11 a 64 bit | `JAVA_linguo-v…-windows-x64.setup.exe` | Scelta corretta per quasi tutti i PC Windows |
+| Mac con chip Apple | `JAVA_linguo-v…-macos-arm64.dmg` | Per M1, M2, M3, M4 e successivi |
+| Mac con processore Intel | `JAVA_linguo-v…-macos-x64.dmg` | In ** → Informazioni su questo Mac** compare “Intel” |
+| Ubuntu, Debian, Mint | `JAVA_linguo-v…-linux-x64.deb` | Installazione integrata nel sistema |
+| Altre distribuzioni Linux | `JAVA_linguo-v…-linux-x64.AppImage` | File portabile, senza installazione |
+
+I file che terminano con `.sha256` servono a verificare l'integrità: non sono installer.
+
+### 2. Installa e apri JAVA_linguo
+
+#### Windows
+
+1. Apri il file `.setup.exe` scaricato.
+2. Completa l'installazione e avvia **JAVA_linguo** dal menu Start.
+3. Se SmartScreen mostra un avviso, scegli **Ulteriori informazioni → Esegui comunque** soltanto se il file proviene dalla pagina Releases ufficiale.
+
+#### macOS
+
+1. Apri il file `.dmg` adatto al processore del Mac.
+2. Trascina **JAVA_linguo** nella cartella **Applicazioni**.
+3. Al primo avvio, se macOS lo blocca, fai clic destro sull'app e scegli **Apri → Apri**.
+
+#### Linux con pacchetto `.deb`
+
+Apri un terminale nella cartella del download ed esegui:
+
+```bash
+sudo apt install ./JAVA_linguo-v*-linux-x64.deb
+```
+
+#### Linux con AppImage
+
+```bash
+chmod +x JAVA_linguo-v*-linux-x64.AppImage
+./JAVA_linguo-v*-linux-x64.AppImage
+```
+
+Se l'AppImage segnala che manca FUSE, installa il pacchetto `libfuse2` disponibile nella tua distribuzione oppure usa il pacchetto `.deb`.
+
+### 3. Attiva il laboratorio di codice
+
+Puoi usare Teoria e Verifica senza configurazioni aggiuntive. Per i pulsanti **Compila**, **Esegui** e per il terminale:
+
+1. installa [Docker Desktop](https://www.docker.com/products/docker-desktop/) su Windows/macOS oppure Docker Engine su Linux;
+2. avvia Docker e attendi che risulti pronto;
+3. scarica una sola volta l'immagine Java fissata e verificata:
 
 ```text
 docker pull eclipse-temurin:25-jdk@sha256:e787e08ef76f4c16866108cd7f9fcd96a68eef3ac6cc76866897d4d02d5a2262
 ```
 
-Gli installer della versione iniziale non sono firmati con un certificato commerciale. Windows SmartScreen può quindi mostrare un avviso; su macOS può essere necessario fare clic destro sull'app e scegliere **Apri**. Firma e notarizzazione sono previste come miglioramento futuro.
+Riapri JAVA_linguo: nel Laboratorio lo stato diventerà **Sandbox pronta**. Il terminale integrato accetta solo i comandi Java indicati dall'app e non espone la shell del computer.
 
-Su Linux, se scegli AppImage, rendi il file eseguibile e avvialo:
+### Problemi comuni
 
-```bash
-chmod +x JAVA_linguo-*.AppImage
-./JAVA_linguo-*.AppImage
-```
+| Problema | Soluzione |
+| --- | --- |
+| Il laboratorio indica che Docker non è disponibile | Avvia Docker Desktop/Engine, attendi lo stato “Running” e riapri l'app |
+| Windows o macOS avvisano che l'autore non è verificato | Usa esclusivamente la Release GitHub ufficiale e segui il passaggio di apertura descritto sopra |
+| Hai scaricato il file sbagliato per Mac | Controlla il processore in ** → Informazioni su questo Mac** e scegli `arm64` oppure `x64` |
+| L'AppImage non parte | Rendi il file eseguibile; se manca FUSE, installa `libfuse2` o usa il `.deb` |
+
+Gli installer attuali non sono ancora firmati con un certificato commerciale. Firma Windows e notarizzazione macOS sono previste per una versione futura.
 
 ## Cosa offre
 

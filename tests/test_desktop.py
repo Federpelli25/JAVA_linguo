@@ -26,6 +26,25 @@ class DesktopConfigurationTests(unittest.TestCase):
             ["binaries/java-linguo-backend"],
         )
 
+    def test_desktop_and_web_icons_are_packaged(self) -> None:
+        tauri_config = json.loads((ROOT / "src-tauri" / "tauri.conf.json").read_text())
+
+        for icon in tauri_config["bundle"]["icon"]:
+            self.assertTrue((ROOT / "src-tauri" / icon).is_file(), icon)
+        self.assertTrue((ROOT / "public" / "favicon.svg").is_file())
+
+    def test_java_editor_and_terminal_input_are_exposed(self) -> None:
+        package = json.loads((ROOT / "package.json").read_text())
+        page = (ROOT / "app" / "page.tsx").read_text(encoding="utf-8")
+        editor = (ROOT / "app" / "java-code-editor.tsx").read_text(encoding="utf-8")
+
+        self.assertEqual(package["dependencies"]["@codemirror/lang-java"], "6.0.2")
+        self.assertEqual(package["dependencies"]["@uiw/react-codemirror"], "4.25.11")
+        self.assertIn("vscodeDark", editor)
+        self.assertIn("java()", editor)
+        self.assertIn("Scrivi un comando", page)
+        self.assertIn('placeholder="es. java Main.java"', page)
+
     def test_sidecar_name_matches_tauri_target_convention(self) -> None:
         self.assertEqual(
             build_sidecar.sidecar_filename("x86_64-pc-windows-msvc"),
