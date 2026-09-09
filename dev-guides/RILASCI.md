@@ -47,7 +47,7 @@ Dopo i controlli:
 1. creare un commit con il contenuto esatto del rilascio;
 2. creare il tag annotato `vMAJOR.MINOR.PATCH` sul commit;
 3. pubblicare branch e tag;
-4. creare una GitHub Release usando la relativa sezione del changelog;
+4. attendere che la pipeline `Pubblica release` crei la GitHub Release dal tag;
 5. verificare che la pagina Releases offra il sorgente ZIP e il tag corretto.
 6. verificare che `Installer desktop` pubblichi `.exe`, `.dmg`, `.AppImage`, `.deb` e i relativi checksum.
 
