@@ -3,6 +3,10 @@
 [![Versione](https://img.shields.io/badge/versione-0.5.0-006b57)](https://github.com/Federpelli25/JAVA_linguo/releases)
 [![Java](https://img.shields.io/badge/Java-25%20LTS-e76f00)](https://www.oracle.com/java/technologies/java-se-support-roadmap.html)
 [![Scarica per Windows](https://img.shields.io/badge/Scarica_per_Windows-.exe-0a7c66?logo=windows)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-windows-x64.setup.exe)
+[![Scarica per macOS Apple Silicon](https://img.shields.io/badge/macOS_Apple_Silicon-.dmg-0a7c66?logo=apple)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-macos-arm64.dmg)
+[![Scarica per macOS Intel](https://img.shields.io/badge/macOS_Intel-.dmg-0a7c66?logo=apple)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-macos-x64.dmg)
+[![Scarica il pacchetto Linux](https://img.shields.io/badge/Linux_Debian_Ubuntu-.deb-0a7c66?logo=linux)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-linux-x64.deb)
+[![Scarica AppImage](https://img.shields.io/badge/Linux_portabile-.AppImage-0a7c66?logo=linux)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-linux-x64.AppImage)
 
 JAVA_linguo è un'applicazione didattica open source per studiare Java con un percorso strutturato: teoria, verifica e laboratorio pratico. Le spiegazioni e gli esercizi hanno un livello di approfondimento simile a un corso universitario.
 
@@ -14,9 +18,13 @@ Non devi installare Python, Node.js o Java: l'app contiene già tutto ciò che s
 
 ### Download diretto
 
-**Windows 10/11 a 64 bit:** [⬇ Scarica JAVA_linguo per Windows (`.exe`)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-windows-x64.setup.exe)
+- **Windows 10/11 a 64 bit:** [⬇ Scarica JAVA_linguo (`.exe`)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-windows-x64.setup.exe)
+- **Mac con chip Apple:** [⬇ Scarica JAVA_linguo (`.dmg` Apple Silicon)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-macos-arm64.dmg)
+- **Mac con processore Intel:** [⬇ Scarica JAVA_linguo (`.dmg` Intel)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-macos-x64.dmg)
+- **Ubuntu, Debian e Mint:** [⬇ Scarica JAVA_linguo (`.deb`)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-linux-x64.deb)
+- **Altre distribuzioni Linux:** [⬇ Scarica JAVA_linguo (`.AppImage`)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-linux-x64.AppImage)
 
-Il collegamento punta direttamente all'installer ufficiale: facendo clic, il browser avvia il download del file `.exe` senza richiedere di cercarlo nella pagina Releases.
+Ogni collegamento punta direttamente all'installer ufficiale: facendo clic, il browser avvia il download senza richiedere di cercare il file nella pagina Releases.
 
 ### 1. Scarica il file corretto
 
