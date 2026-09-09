@@ -2,6 +2,7 @@
 
 [![Versione](https://img.shields.io/badge/versione-0.5.0-006b57)](https://github.com/Federpelli25/JAVA_linguo/releases)
 [![Java](https://img.shields.io/badge/Java-25%20LTS-e76f00)](https://www.oracle.com/java/technologies/java-se-support-roadmap.html)
+[![Scarica per Windows](https://img.shields.io/badge/Scarica_per_Windows-.exe-0a7c66?logo=windows)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-windows-x64.setup.exe)
 
 JAVA_linguo è un'applicazione didattica open source per studiare Java con un percorso strutturato: teoria, verifica e laboratorio pratico. Le spiegazioni e gli esercizi hanno un livello di approfondimento simile a un corso universitario.
 
@@ -11,17 +12,23 @@ JAVA_linguo è un'applicazione didattica open source per studiare Java con un pe
 
 Non devi installare Python, Node.js o Java: l'app contiene già tutto ciò che serve per leggere le lezioni e svolgere le verifiche. Docker è necessario soltanto quando vuoi compilare ed eseguire il codice del laboratorio.
 
+### Download diretto
+
+**Windows 10/11 a 64 bit:** [⬇ Scarica JAVA_linguo per Windows (`.exe`)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-windows-x64.setup.exe)
+
+Il collegamento punta direttamente all'installer ufficiale: facendo clic, il browser avvia il download del file `.exe` senza richiedere di cercarlo nella pagina Releases.
+
 ### 1. Scarica il file corretto
 
-Apri **[Releases → Latest](https://github.com/Federpelli25/JAVA_linguo/releases/latest)** e scegli il download per il tuo computer:
+Puoi scaricare ogni installer direttamente da questa tabella. La pagina **[Releases → Latest](https://github.com/Federpelli25/JAVA_linguo/releases/latest)** rimane disponibile per checksum, SBOM e versioni precedenti.
 
-| Sistema | File da scaricare | Come scegliere |
+| Sistema | Download diretto | Come scegliere |
 | --- | --- | --- |
-| Windows 10/11 a 64 bit | `JAVA_linguo-v…-windows-x64.setup.exe` | Scelta corretta per quasi tutti i PC Windows |
-| Mac con chip Apple | `JAVA_linguo-v…-macos-arm64.dmg` | Per M1, M2, M3, M4 e successivi |
-| Mac con processore Intel | `JAVA_linguo-v…-macos-x64.dmg` | In ** → Informazioni su questo Mac** compare “Intel” |
-| Ubuntu, Debian, Mint | `JAVA_linguo-v…-linux-x64.deb` | Installazione integrata nel sistema |
-| Altre distribuzioni Linux | `JAVA_linguo-v…-linux-x64.AppImage` | File portabile, senza installazione |
+| Windows 10/11 a 64 bit | [Scarica `.exe`](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-windows-x64.setup.exe) | Scelta corretta per quasi tutti i PC Windows |
+| Mac con chip Apple | [Scarica `.dmg` Apple Silicon](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-macos-arm64.dmg) | Per M1, M2, M3, M4 e successivi |
+| Mac con processore Intel | [Scarica `.dmg` Intel](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-macos-x64.dmg) | In ** → Informazioni su questo Mac** compare “Intel” |
+| Ubuntu, Debian, Mint | [Scarica `.deb`](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-linux-x64.deb) | Installazione integrata nel sistema |
+| Altre distribuzioni Linux | [Scarica `.AppImage`](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-linux-x64.AppImage) | File portabile, senza installazione |
 
 I file che terminano con `.sha256` servono a verificare l'integrità: non sono installer.
 

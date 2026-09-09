@@ -15,6 +15,7 @@ Ogni rilascio deve riportare lo stesso numero in:
 - `package.json` e `package-lock.json`;
 - `src-tauri/Cargo.toml`, `src-tauri/Cargo.lock` e `src-tauri/tauri.conf.json`;
 - badge del `README.md`;
+- collegamenti di download diretto del `README.md`, inclusi tag e nomi degli installer;
 - nuova sezione di `CHANGELOG.md`.
 
 ## Verifiche
@@ -50,6 +51,7 @@ Dopo i controlli:
 4. attendere che la pipeline `Pubblica release` crei la GitHub Release dal tag;
 5. verificare che la pagina Releases offra il sorgente ZIP e il tag corretto.
 6. verificare che la stessa pipeline pubblichi `.exe`, `.dmg`, `.AppImage`, `.deb` e i relativi checksum.
+7. aprire dal `README.md` ogni collegamento di download diretto e verificare che punti all'asset della versione appena pubblicata.
 
 Gli installer devono essere compilati sul sistema operativo di destinazione. Non dichiarare un pacchetto firmato o notarizzato senza aver configurato e verificato i certificati relativi.
 
