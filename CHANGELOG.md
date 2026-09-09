@@ -2,6 +2,13 @@
 
 Tutte le modifiche rilevanti di JAVA_linguo sono documentate in questo file. Il progetto segue il versionamento semantico.
 
+## [0.4.2] - 2026-09-09
+
+### Corretto
+
+- resa deterministica la creazione degli installer desktop usando il frontend `dist` già versionato e verificato dalla pipeline di qualità;
+- rimossa la ricompilazione ridondante del frontend su ciascun sistema operativo durante la pubblicazione.
+
 ## [0.4.1] - 2026-09-09
 
 ### Corretto

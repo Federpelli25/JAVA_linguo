@@ -78,9 +78,6 @@ jobs:
       - name: Installa il packager Python
         run: python -m pip install --requirement requirements-desktop.txt
 
-      - name: Genera il frontend
-        run: npm run build
-
       - name: Genera il sidecar
         run: python scripts/build_sidecar.py --target-triple "${{ matrix.target }}"
 
