@@ -2,6 +2,14 @@
 
 Tutte le modifiche rilevanti di JAVA_linguo sono documentate in questo file. Il progetto segue il versionamento semantico.
 
+## [0.4.1] - 2026-09-09
+
+### Corretto
+
+- separata la generazione del frontend e del sidecar per usare la shell nativa di ogni runner GitHub;
+- inoltrata correttamente a Cargo l'opzione `--locked` durante le build Tauri;
+- letta la versione degli installer direttamente dal file `VERSION`, evitando sintassi dipendente dalla shell.
+
 ## [0.4.0] - 2026-09-09
 
 ### Aggiunto

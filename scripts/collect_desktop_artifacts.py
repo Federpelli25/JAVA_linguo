@@ -45,7 +45,10 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--platform", choices=sorted(ARTIFACT_PATTERNS), required=True)
     parser.add_argument("--architecture", required=True)
-    parser.add_argument("--version", required=True)
+    parser.add_argument(
+        "--version",
+        default=(ROOT / "VERSION").read_text(encoding="utf-8").strip(),
+    )
     arguments = parser.parse_args()
     for artifact in collect(arguments.platform, arguments.architecture, arguments.version):
         print(artifact.relative_to(ROOT))
