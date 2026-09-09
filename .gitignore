@@ -28,6 +28,7 @@ yarn-error.log*
 # local environment
 .env
 .venv/
+.desktop-venv/
 __pycache__/
 *.py[cod]
 
@@ -37,3 +38,8 @@ next-env.d.ts
 /.wrangler/
 /outputs/
 /work/
+/.desktop-build/
+/desktop-artifacts/
+/src-tauri/binaries/*
+!/src-tauri/binaries/.gitkeep
+/src-tauri/target/

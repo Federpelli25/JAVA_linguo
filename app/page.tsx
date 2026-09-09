@@ -65,7 +65,8 @@ type TerminalEntry = {
   meta?: string;
 };
 
-const STORAGE_KEY = 'studio-java-progress-v2';
+const STORAGE_KEY = 'java-linguo-progress-v2';
+const LEGACY_STORAGE_KEY = 'studio-java-progress-v2';
 const DEFAULT_GITHUB_URL = 'https://github.com/Federpelli25/JAVA_linguo';
 const INITIAL_CODE = `public class Main {
     public static void main(String[] args) {
@@ -115,7 +116,8 @@ export default function Home() {
 
   useEffect(() => {
     queueMicrotask(() => {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
+      const raw = window.localStorage.getItem(STORAGE_KEY)
+        ?? window.localStorage.getItem(LEGACY_STORAGE_KEY);
       if (raw) {
         try {
           const saved = JSON.parse(raw);
@@ -127,6 +129,7 @@ export default function Home() {
           setNotes(saved.notes ?? '');
           setCompleted(saved.completed ?? false);
           setCode(saved.code ?? INITIAL_CODE);
+          window.localStorage.removeItem(LEGACY_STORAGE_KEY);
         } catch {
           window.localStorage.removeItem(STORAGE_KEY);
         }
@@ -181,6 +184,7 @@ export default function Home() {
 
   function resetProgress() {
     window.localStorage.removeItem(STORAGE_KEY);
+    window.localStorage.removeItem(LEGACY_STORAGE_KEY);
     setTab('theory');
     setSlide(0);
     setAnswers({});
@@ -255,7 +259,7 @@ export default function Home() {
       <aside className="course-rail">
         <div className="brand-lockup">
           <span className="brand-mark">J_</span>
-          <div><strong>Studio Java</strong><span>Corso pratico su GitHub</span></div>
+          <div><strong>JAVA_linguo</strong><span>Corso pratico su GitHub</span></div>
         </div>
         <div className="rail-label">Percorso accademico</div>
         <nav aria-label="Lezioni del corso" className="lesson-list">

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "JAVA_linguo",
+  "version": "0.4.0",
+  "identifier": "com.federpelli25.java-linguo",
+  "build": {
+    "frontendDist": "../dist/client"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "JAVA_linguo",
+        "url": "desktop-loading.html",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 960,
+        "minHeight": 640,
+        "center": true,
+        "visible": true,
+        "devtools": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' http://127.0.0.1:*"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "externalBin": ["binaries/java-linguo-backend"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "shortDescription": "Impara Java con teoria e laboratorio sandboxato",
+    "longDescription": "Percorso didattico open source con lezioni, verifiche ed esecuzione Java in una sandbox Docker locale.",
+    "category": "Education"
+  }
+}

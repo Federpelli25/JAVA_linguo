@@ -33,22 +33,22 @@ jobs:
       - name: Genera archivio, SBOM e checksum
         shell: bash
         run: |
-          archive="studio-java-${{ github.event.release.tag_name }}.zip"
+          archive="JAVA_linguo-${{ github.event.release.tag_name }}-source.zip"
           git archive --format=zip --output="$archive" HEAD
-          npm sbom --sbom-format=cyclonedx > studio-java-sbom.cdx.json
-          sha256sum "$archive" studio-java-sbom.cdx.json > SHA256SUMS.txt
+          npm sbom --sbom-format=cyclonedx > JAVA_linguo-sbom.cdx.json
+          sha256sum "$archive" JAVA_linguo-sbom.cdx.json > SOURCE-SHA256SUMS.txt
 
       - name: Attesta la provenienza dell'archivio
         uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3
         with:
-          subject-path: studio-java-${{ github.event.release.tag_name }}.zip
+          subject-path: JAVA_linguo-${{ github.event.release.tag_name }}-source.zip
 
       - name: Pubblica gli artefatti verificabili
         env:
           GH_TOKEN: ${{ github.token }}
         run: >-
           gh release upload "${{ github.event.release.tag_name }}"
-          "studio-java-${{ github.event.release.tag_name }}.zip"
-          studio-java-sbom.cdx.json
-          SHA256SUMS.txt
+          "JAVA_linguo-${{ github.event.release.tag_name }}-source.zip"
+          JAVA_linguo-sbom.cdx.json
+          SOURCE-SHA256SUMS.txt
           --clobber

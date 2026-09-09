@@ -4,13 +4,14 @@ Queste regole sono obbligatorie per ogni modifica al server locale, alla sandbox
 
 ## Modello di minaccia
 
-Studio Java deve limitare cinque categorie di rischio:
+JAVA_linguo deve limitare sei categorie di rischio:
 
 1. codice Java errato o deliberatamente ostile;
 2. pagine web esterne che tentano di contattare il server locale;
 3. esaurimento di CPU, memoria, processi, disco oppure output;
 4. accesso accidentale a file, rete o segreti del computer;
 5. dipendenze o artefatti di release compromessi.
+6. abuso dei permessi della shell desktop o sostituzione del sidecar incorporato.
 
 La sandbox è destinata all'uso locale da parte di una persona. Non presentarla come isolamento sufficiente per un servizio pubblico multiutente.
 
@@ -45,6 +46,17 @@ La sandbox è destinata all'uso locale da parte di una persona. Non presentarla 
 - CI, CodeQL e Dependency Review devono restare attivi.
 - Ogni release deve produrre SBOM, checksum e attestazione di provenienza.
 - Token e credenziali non devono mai essere salvati nel repository o negli artefatti.
+
+## Invarianti dell'app desktop
+
+- Il nome pubblico del prodotto deve essere `JAVA_linguo`; gli identificatori tecnici possono usare `java-linguo`.
+- Il WebView deve raggiungere soltanto il server HTTP locale creato dal sidecar.
+- Il plugin shell deve poter avviare esclusivamente `java-linguo-backend` con gli argomenti documentati e validati.
+- Il processo sidecar deve terminare alla chiusura dell'app.
+- Il backend incorporato deve contenere la build frontend e `VERSION`, senza `.env`, segreti o file di sviluppo.
+- Ogni piattaforma deve compilare il proprio installer; non usare cross-compilazione per gli artefatti pubblici.
+- `Cargo.lock`, `package-lock.json` e `requirements-desktop.txt` devono essere versionati e usati in modalità bloccata nelle pipeline.
+- Non dichiarare firma o notarizzazione finché i certificati non sono realmente configurati.
 
 ## Test minimi
 

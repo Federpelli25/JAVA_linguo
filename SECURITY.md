@@ -2,7 +2,7 @@
 
 ## Versioni supportate
 
-Le correzioni di sicurezza vengono applicate all'ultima versione pubblicata di Studio Java. Prima di segnalare un problema, verifica che sia ancora presente nella release più recente.
+Le correzioni di sicurezza vengono applicate all'ultima versione pubblicata di JAVA_linguo. Prima di segnalare un problema, verifica che sia ancora presente nella release più recente.
 
 ## Segnalare una vulnerabilità
 
@@ -14,7 +14,7 @@ Usa invece la funzione privata **Report a vulnerability** nella sezione Security
 
 Includi, quando possibile:
 
-- versione di Studio Java, sistema operativo e versione di Docker;
+- versione di JAVA_linguo, sistema operativo e versione di Docker;
 - componente interessato e impatto osservato;
 - passaggi minimi per riprodurre il problema;
 - eventuali mitigazioni già provate.

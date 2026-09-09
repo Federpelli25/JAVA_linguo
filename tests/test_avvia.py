@@ -12,6 +12,13 @@ import avvia
 
 
 class SandboxCommandTests(unittest.TestCase):
+    def test_desktop_arguments_accept_only_valid_ports(self) -> None:
+        arguments = avvia.parse_arguments(["--desktop", "--port", "0"])
+        self.assertTrue(arguments.desktop)
+        self.assertEqual(arguments.port, 0)
+        with self.assertRaises(SystemExit):
+            avvia.parse_arguments(["--port", "70000"])
+
     def test_only_documented_commands_are_allowed(self) -> None:
         self.assertEqual(avvia.command_arguments("  java   Main.java  "), ("java", "Main.java"))
         with self.assertRaises(ValueError):
@@ -26,7 +33,7 @@ class SandboxCommandTests(unittest.TestCase):
             command = avvia.build_docker_command(
                 source_file,
                 "javac Main.java",
-                "studio-java-test",
+                "java-linguo-test",
                 avvia.DEFAULT_SANDBOX_IMAGE,
             )
 
@@ -71,7 +78,7 @@ class SandboxCommandTests(unittest.TestCase):
             "avvia.force_remove_container"
         ) as remove:
             exit_code, output, timed_out, limited = avvia.run_docker_process(
-                ["docker", "run"], "studio-java-test"
+                ["docker", "run"], "java-linguo-test"
             )
 
         self.assertEqual(exit_code, 125)
@@ -79,7 +86,7 @@ class SandboxCommandTests(unittest.TestCase):
         self.assertTrue(limited)
         self.assertLessEqual(len(output.encode("utf-8")), avvia.MAX_OUTPUT_BYTES + 100)
         self.assertIn("Output interrotto", output)
-        remove.assert_called_once_with("studio-java-test")
+        remove.assert_called_once_with("java-linguo-test")
 
 
 class RequestSecurityTests(unittest.TestCase):

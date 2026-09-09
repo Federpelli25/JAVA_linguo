@@ -1,6 +1,27 @@
 # Changelog
 
-Tutte le modifiche rilevanti di Studio Java sono documentate in questo file. Il progetto segue il versionamento semantico.
+Tutte le modifiche rilevanti di JAVA_linguo sono documentate in questo file. Il progetto segue il versionamento semantico.
+
+## [0.4.0] - 2026-09-09
+
+### Aggiunto
+
+- applicazione desktop nativa basata su Tauri per Windows, macOS Apple Silicon, macOS Intel e Linux;
+- backend Python incorporato come sidecar: l'utente finale non deve installare Python o Node.js;
+- installer e checksum SHA-256 creati automaticamente su ogni sistema operativo e pubblicati nelle release GitHub;
+- schermata di avvio, icona coordinata e controllo automatico di disponibilità del server locale.
+
+### Migliorato
+
+- nome del prodotto uniformato a `JAVA_linguo` nell'interfaccia, nei pacchetti e nella documentazione;
+- migrazione trasparente dei progressi salvati con il precedente nome dell'app;
+- dipendenze Cloudflare e Sharp aggiornate per mantenere l'audit privo di vulnerabilità note.
+
+### Sicurezza
+
+- permessi Tauri ridotti all'avvio del solo sidecar dichiarato con argomenti validati;
+- server e sandbox Docker invariati nei loro confini: loopback, cookie HttpOnly, allowlist dei comandi e limiti di risorse;
+- build native separate per piattaforma con attestazione di provenienza GitHub.
 
 ## [0.3.1] - 2026-09-08
 

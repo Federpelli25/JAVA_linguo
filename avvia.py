@@ -1,7 +1,8 @@
-"""Avvia Studio Java e il laboratorio Docker isolato usando Python standard."""
+"""Avvia JAVA_linguo e il laboratorio Docker isolato usando Python standard."""
 
 from __future__ import annotations
 
+import argparse
 import hmac
 import json
 import math
@@ -41,7 +42,7 @@ REQUEST_TIMEOUT_SECONDS = 15
 MAX_CONCURRENT_RUNS = 1
 RATE_LIMIT_REQUESTS = 12
 RATE_LIMIT_WINDOW_SECONDS = 60
-SESSION_COOKIE_NAME = "studio_java_session"
+SESSION_COOKIE_NAME = "java_linguo_session"
 SANDBOX_USER = "65532:65532"
 LAB_API_TOKEN = secrets.token_urlsafe(32)
 IMAGE_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/:@-]{0,199}$")
@@ -120,6 +121,32 @@ def choose_port(preferred: int) -> int:
         except OSError:
             probe.bind(("127.0.0.1", 0))
             return int(probe.getsockname()[1])
+
+
+def valid_port(value: str) -> int:
+    """Converte una porta CLI, accettando 0 per l'assegnazione automatica."""
+    try:
+        port = int(value)
+    except ValueError as error:
+        raise argparse.ArgumentTypeError("la porta deve essere un numero intero") from error
+    if not 0 <= port <= 65535:
+        raise argparse.ArgumentTypeError("la porta deve essere compresa tra 0 e 65535")
+    return port
+
+
+def parse_arguments(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Avvia JAVA_linguo in locale.")
+    parser.add_argument(
+        "--desktop",
+        action="store_true",
+        help="modalità sidecar: non apre il browser e non attende input in caso di errore",
+    )
+    parser.add_argument(
+        "--port",
+        type=valid_port,
+        help="porta locale esatta; usa 0 per farla scegliere al sistema operativo",
+    )
+    return parser.parse_args(argv)
 
 
 def normalized_command(command: str) -> str:
@@ -356,9 +383,9 @@ def run_in_sandbox(code: str, command: str, image: str) -> dict[str, object]:
     if not ready:
         raise RuntimeError(reason)
 
-    container_name = f"studio-java-{uuid.uuid4().hex[:12]}"
+    container_name = f"java-linguo-{uuid.uuid4().hex[:12]}"
     started = time.monotonic()
-    with tempfile.TemporaryDirectory(prefix="studio-java-lab-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="java-linguo-lab-") as temporary:
         source_file = Path(temporary) / "Main.java"
         source_file.write_text(code, encoding="utf-8")
         docker_command = build_docker_command(source_file, normalized, container_name, image)
@@ -378,7 +405,7 @@ def run_in_sandbox(code: str, command: str, image: str) -> dict[str, object]:
 
 
 class AppHandler(SimpleHTTPRequestHandler):
-    server_version = "StudioJava"
+    server_version = "JAVALinguo"
     sys_version = ""
 
     def __init__(self, *args, **kwargs):
@@ -543,32 +570,50 @@ class LocalAppServer(ThreadingHTTPServer):
     request_queue_size = 16
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    arguments = parse_arguments(argv)
     load_environment()
     try:
         ensure_build()
     except RuntimeError as error:
         print(f"Errore: {error}")
-        input("Premi Invio per chiudere…")
+        if not arguments.desktop:
+            input("Premi Invio per chiudere…")
         return 1
 
-    try:
-        preferred_port = int(os.getenv("APP_PORT", "8765"))
-    except ValueError:
-        preferred_port = 8765
-    port = choose_port(preferred_port)
-    url = f"http://127.0.0.1:{port}"
+    if arguments.port is None:
+        try:
+            preferred_port = int(os.getenv("APP_PORT", "8765"))
+        except ValueError:
+            preferred_port = 8765
+        port = choose_port(preferred_port)
+    else:
+        port = arguments.port
     reset_rate_limit()
-    server = LocalAppServer(("127.0.0.1", port), AppHandler)
-    if os.getenv("STUDIO_JAVA_NO_BROWSER") != "1":
+    try:
+        server = LocalAppServer(("127.0.0.1", port), AppHandler)
+    except OSError as error:
+        print(f"Errore: la porta locale non è disponibile ({error}).")
+        if not arguments.desktop:
+            input("Premi Invio per chiudere…")
+        return 1
+    actual_port = server.server_port
+    url = f"http://127.0.0.1:{actual_port}"
+    no_browser = (
+        arguments.desktop
+        or os.getenv("JAVA_LINGUO_NO_BROWSER") == "1"
+        or os.getenv("STUDIO_JAVA_NO_BROWSER") == "1"
+    )
+    if not no_browser:
         threading.Timer(0.7, lambda: webbrowser.open(url)).start()
-    print(f"\nStudio Java {app_version()} è attivo su {url}")
+    print(f"JAVA_LINGUO_URL={url}", flush=True)
+    print(f"\nJAVA_linguo {app_version()} è attivo su {url}")
     print("Il codice del laboratorio viene eseguito soltanto in Docker.")
     print("Premi Ctrl+C per chiudere.\n")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
-        print("\nStudio Java chiuso.")
+        print("\nJAVA_linguo chiuso.")
     finally:
         server.server_close()
     return 0

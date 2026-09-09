@@ -1,9 +1,4 @@
 @echo off
-cd /d "%~dp0"
-if exist ".venv\Scripts\python.exe" (
-  ".venv\Scripts\python.exe" avvia.py
-) else (
-  py avvia.py
-)
-pause
+rem Alias mantenuto per chi aggiorna da una versione precedente.
+call "%~dp0AVVIA_JAVA_LINGUO.bat"
 

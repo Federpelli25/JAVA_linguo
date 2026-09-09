@@ -1,0 +1,17 @@
+[package]
+name = "java-linguo"
+version = "0.4.0"
+description = "Percorso desktop per imparare Java con teoria, verifica e laboratorio"
+authors = ["Federpelli25"]
+edition = "2021"
+
+[lib]
+name = "java_linguo_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "=2.6.3", features = [] }
+
+[dependencies]
+tauri = { version = "=2.11.5", features = [] }
+tauri-plugin-shell = "=2.3.6"

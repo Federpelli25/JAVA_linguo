@@ -50,4 +50,37 @@ jobs:
         run: python -m unittest discover -s tests -v
 
       - name: Verifica gli script di avvio
-        run: python -m py_compile avvia.py collega_github.py
+        run: python -m py_compile avvia.py collega_github.py scripts/build_sidecar.py scripts/collect_desktop_artifacts.py
+
+  desktop-native-check:
+    name: Verifica shell desktop Linux
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Scarica il repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Installa librerie desktop Linux
+        run: >-
+          sudo apt-get update && sudo apt-get install -y
+          libwebkit2gtk-4.1-dev build-essential libssl-dev libgtk-3-dev
+          libayatana-appindicator3-dev librsvg2-dev
+
+      - name: Configura Rust stabile
+        run: |
+          rustup toolchain install stable --profile minimal --no-self-update
+          rustup default stable
+
+      - name: Prepara il segnaposto del sidecar
+        run: touch src-tauri/binaries/java-linguo-backend-x86_64-unknown-linux-gnu
+
+      - name: Controlla il codice nativo
+        run: cargo check --manifest-path src-tauri/Cargo.toml
+
+      - name: Conserva il lockfile Rust generato
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: cargo-lock
+          path: src-tauri/Cargo.lock
+          retention-days: 1

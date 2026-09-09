@@ -1,6 +1,6 @@
 # Procedura di rilascio
 
-Studio Java usa il versionamento semantico `MAJOR.MINOR.PATCH`.
+JAVA_linguo usa il versionamento semantico `MAJOR.MINOR.PATCH`.
 
 - incrementare `MAJOR` per modifiche incompatibili;
 - incrementare `MINOR` per nuove lezioni o funzionalità;
@@ -13,6 +13,7 @@ Ogni rilascio deve riportare lo stesso numero in:
 - `VERSION`;
 - `app/version.ts`;
 - `package.json` e `package-lock.json`;
+- `src-tauri/Cargo.toml`, `src-tauri/Cargo.lock` e `src-tauri/tauri.conf.json`;
 - badge del `README.md`;
 - nuova sezione di `CHANGELOG.md`.
 
@@ -26,6 +27,7 @@ npm run build
 npm audit --audit-level=high
 .venv\Scripts\python.exe -m unittest discover -s tests -v
 .venv\Scripts\python.exe -m py_compile avvia.py collega_github.py
+cargo check --manifest-path src-tauri/Cargo.toml --locked
 ```
 
 Avviare poi `avvia.py` e controllare:
@@ -47,5 +49,8 @@ Dopo i controlli:
 3. pubblicare branch e tag;
 4. creare una GitHub Release usando la relativa sezione del changelog;
 5. verificare che la pagina Releases offra il sorgente ZIP e il tag corretto.
+6. verificare che `Installer desktop` pubblichi `.exe`, `.dmg`, `.AppImage`, `.deb` e i relativi checksum.
+
+Gli installer devono essere compilati sul sistema operativo di destinazione. Non dichiarare un pacchetto firmato o notarizzato senza aver configurato e verificato i certificati relativi.
 
 Non pubblicare mai `.env`, token, credenziali o cartelle temporanee del laboratorio.

@@ -1,0 +1,108 @@
+name: Installer desktop
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  build-desktop:
+    name: ${{ matrix.label }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: Windows x64
+            runner: windows-latest
+            platform: windows
+            architecture: x64
+            target: x86_64-pc-windows-msvc
+            bundles: nsis
+          - label: Linux x64
+            runner: ubuntu-22.04
+            platform: linux
+            architecture: x64
+            target: x86_64-unknown-linux-gnu
+            bundles: appimage,deb
+          - label: macOS Apple Silicon
+            runner: macos-15
+            platform: macos
+            architecture: arm64
+            target: aarch64-apple-darwin
+            bundles: dmg
+          - label: macOS Intel
+            runner: macos-15-intel
+            platform: macos
+            architecture: x64
+            target: x86_64-apple-darwin
+            bundles: dmg
+
+    steps:
+      - name: Scarica il tag pubblicato
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Configura Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Configura Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.13"
+
+      - name: Installa librerie desktop Linux
+        if: matrix.platform == 'linux'
+        run: >-
+          sudo apt-get update && sudo apt-get install -y
+          libwebkit2gtk-4.1-dev build-essential libssl-dev libgtk-3-dev
+          libayatana-appindicator3-dev librsvg2-dev patchelf libfuse2 file
+
+      - name: Configura Rust stabile
+        shell: bash
+        run: |
+          rustup toolchain install stable --profile minimal --no-self-update
+          rustup default stable
+
+      - name: Installa dipendenze bloccate
+        run: npm ci --ignore-scripts
+
+      - name: Installa il packager Python
+        run: python -m pip install --requirement requirements-desktop.txt
+
+      - name: Genera frontend e sidecar
+        shell: bash
+        run: |
+          npm run build
+          python scripts/build_sidecar.py --target-triple "${{ matrix.target }}"
+
+      - name: Compila l'installer nativo
+        run: npx tauri build --bundles "${{ matrix.bundles }}" --locked
+
+      - name: Raccoglie installer e checksum
+        shell: bash
+        run: >-
+          python scripts/collect_desktop_artifacts.py
+          --platform "${{ matrix.platform }}"
+          --architecture "${{ matrix.architecture }}"
+          --version "$(cat VERSION)"
+
+      - name: Attesta la provenienza degli installer
+        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3
+        with:
+          subject-path: desktop-artifacts/*
+
+      - name: Pubblica gli installer nella release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.event.release.tag_name }}" desktop-artifacts/* --clobber
