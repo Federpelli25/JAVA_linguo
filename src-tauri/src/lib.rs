@@ -1,6 +1,5 @@
 use std::net::{SocketAddr, TcpListener, TcpStream};
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
 use std::time::Duration;
 
 use tauri::{Manager, RunEvent};
@@ -29,7 +28,7 @@ fn show_startup_error(app: &tauri::AppHandle, message: &str) {
     }
 }
 
-fn wait_for_backend(app: tauri::AppHandle, port: u16, ready: Arc<AtomicBool>) {
+fn wait_for_backend(app: tauri::AppHandle, port: u16) {
     let address = SocketAddr::from(([127, 0, 0, 1], port));
     for _ in 0..200 {
         if TcpStream::connect_timeout(&address, Duration::from_millis(100)).is_ok() {
@@ -38,7 +37,6 @@ fn wait_for_backend(app: tauri::AppHandle, port: u16, ready: Arc<AtomicBool>) {
                 Ok(url) => {
                     if let Some(window) = app.get_webview_window("main") {
                         if window.navigate(url).is_ok() {
-                            ready.store(true, Ordering::Release);
                             let _ = window.show();
                             let _ = window.set_focus();
                             return;
@@ -80,16 +78,10 @@ pub fn run() {
                 .map_err(|_| "Stato del backend non disponibile")?
                 .replace(child);
 
-            tauri::async_runtime::spawn(async move {
-                while events.recv().await.is_some() {}
-            });
+            tauri::async_runtime::spawn(async move { while events.recv().await.is_some() {} });
 
             let handle = app.handle().clone();
-            let ready = Arc::new(AtomicBool::new(false));
-            std::thread::spawn({
-                let ready = Arc::clone(&ready);
-                move || wait_for_backend(handle, port, ready)
-            });
+            std::thread::spawn(move || wait_for_backend(handle, port));
             Ok(())
         })
         .build(tauri::generate_context!())

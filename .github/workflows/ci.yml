@@ -76,11 +76,4 @@ jobs:
         run: touch src-tauri/binaries/java-linguo-backend-x86_64-unknown-linux-gnu
 
       - name: Controlla il codice nativo
-        run: cargo check --manifest-path src-tauri/Cargo.toml
-
-      - name: Conserva il lockfile Rust generato
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: cargo-lock
-          path: src-tauri/Cargo.lock
-          retention-days: 1
+        run: cargo check --manifest-path src-tauri/Cargo.toml --locked
