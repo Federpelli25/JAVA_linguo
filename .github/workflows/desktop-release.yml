@@ -1,8 +1,9 @@
 name: Installer desktop
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - "v[0-9]*.[0-9]*.[0-9]*"
 
 permissions:
   contents: write
@@ -46,8 +47,6 @@ jobs:
     steps:
       - name: Scarica il tag pubblicato
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          ref: ${{ github.event.release.tag_name }}
 
       - name: Configura Node.js
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
@@ -105,4 +104,4 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload "${{ github.event.release.tag_name }}" desktop-artifacts/* --clobber
+        run: gh release upload "$GITHUB_REF_NAME" desktop-artifacts/* --clobber

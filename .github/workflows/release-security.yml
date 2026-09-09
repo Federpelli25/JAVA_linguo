@@ -1,8 +1,9 @@
 name: Integrità release
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - "v[0-9]*.[0-9]*.[0-9]*"
 
 permissions:
   contents: write
@@ -11,15 +12,26 @@ permissions:
 
 jobs:
   attest-release:
-    name: SBOM, checksum e attestazione
+    name: Release, SBOM, checksum e attestazione
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
     steps:
       - name: Scarica il tag pubblicato
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          ref: ${{ github.event.release.tag_name }}
+
+      - name: Verifica che tag e VERSION coincidano
+        shell: bash
+        run: test "${GITHUB_REF_NAME#v}" = "$(cat VERSION)"
+
+      - name: Crea la release GitHub
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create "$GITHUB_REF_NAME"
+          --verify-tag
+          --title "JAVA_linguo $GITHUB_REF_NAME"
+          --generate-notes
 
       - name: Configura Node.js
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
@@ -33,7 +45,7 @@ jobs:
       - name: Genera archivio, SBOM e checksum
         shell: bash
         run: |
-          archive="JAVA_linguo-${{ github.event.release.tag_name }}-source.zip"
+          archive="JAVA_linguo-${GITHUB_REF_NAME}-source.zip"
           git archive --format=zip --output="$archive" HEAD
           npm sbom --sbom-format=cyclonedx > JAVA_linguo-sbom.cdx.json
           sha256sum "$archive" JAVA_linguo-sbom.cdx.json > SOURCE-SHA256SUMS.txt
@@ -41,14 +53,14 @@ jobs:
       - name: Attesta la provenienza dell'archivio
         uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3
         with:
-          subject-path: JAVA_linguo-${{ github.event.release.tag_name }}-source.zip
+          subject-path: JAVA_linguo-${{ github.ref_name }}-source.zip
 
       - name: Pubblica gli artefatti verificabili
         env:
           GH_TOKEN: ${{ github.token }}
         run: >-
-          gh release upload "${{ github.event.release.tag_name }}"
-          "JAVA_linguo-${{ github.event.release.tag_name }}-source.zip"
+          gh release upload "$GITHUB_REF_NAME"
+          "JAVA_linguo-${GITHUB_REF_NAME}-source.zip"
           JAVA_linguo-sbom.cdx.json
           SOURCE-SHA256SUMS.txt
           --clobber

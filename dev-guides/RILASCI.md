@@ -49,7 +49,7 @@ Dopo i controlli:
 3. pubblicare branch e tag;
 4. attendere che la pipeline `Pubblica release` crei la GitHub Release dal tag;
 5. verificare che la pagina Releases offra il sorgente ZIP e il tag corretto.
-6. verificare che `Installer desktop` pubblichi `.exe`, `.dmg`, `.AppImage`, `.deb` e i relativi checksum.
+6. verificare che la stessa pipeline pubblichi `.exe`, `.dmg`, `.AppImage`, `.deb` e i relativi checksum.
 
 Gli installer devono essere compilati sul sistema operativo di destinazione. Non dichiarare un pacchetto firmato o notarizzato senza aver configurato e verificato i certificati relativi.
 

@@ -134,7 +134,7 @@ py -m pip install -r requirements-desktop.txt
 npm run desktop:build
 ```
 
-Le build ufficiali sono generate dalla pipeline `Installer desktop`; il push di un tag semantico crea automaticamente la relativa release GitHub. Prima di sviluppare nuove componenti o lezioni, leggere integralmente le istruzioni in `dev-guides`.
+Le build ufficiali sono generate dalle pipeline `Integrità release` e `Installer desktop`; il push di un tag semantico crea automaticamente la relativa release GitHub e tutti gli installer. Prima di sviluppare nuove componenti o lezioni, leggere integralmente le istruzioni in `dev-guides`.
 
 ## Repository
 
