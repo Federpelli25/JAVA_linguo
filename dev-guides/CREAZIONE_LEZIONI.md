@@ -236,6 +236,8 @@ Prima di considerare pronta una lezione, verificare che:
 - la lezione sia utilizzabile da tastiera e leggibile nell'interfaccia;
 - siano superati anche i quality gate tecnici indicati nel `README.md` di questa cartella.
 
+Eseguire sempre `npm run course:validate`: il comando verifica numero, ordine, metadati e soglie didattiche dell'intero catalogo e compila con `javac --release` lo starter code di tutte le 52 lezioni.
+
 ## 12. Modello sintetico
 
 Usare questo schema come indice minimo:

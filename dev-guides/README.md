@@ -38,6 +38,7 @@ Prima di considerare completa una modifica:
 
 ```powershell
 npx oxlint app
+npm run course:validate
 npm run build
 .venv\Scripts\python.exe -m py_compile avvia.py collega_github.py
 ```

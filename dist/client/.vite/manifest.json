@@ -1,4 +1,12 @@
 {
+  "_core-BFqLT5rb.js": {
+    "file": "_next/static/chunks/core-BFqLT5rb.js",
+    "name": "core"
+  },
+  "_course-factory-9PcRttbO.js": {
+    "file": "_next/static/chunks/course-factory-9PcRttbO.js",
+    "name": "course-factory"
+  },
   "_framework-DTZGTDtF.js": {
     "file": "_next/static/chunks/framework-DTZGTDtF.js",
     "name": "framework",
@@ -10,15 +18,48 @@
     "file": "_next/static/chunks/rolldown-runtime-hePW80VL.js",
     "name": "rolldown-runtime"
   },
-  "_vinext-C8wwvras.js": {
-    "file": "_next/static/chunks/vinext-C8wwvras.js",
+  "_vinext-a00yAzbi.js": {
+    "file": "_next/static/chunks/vinext-a00yAzbi.js",
     "name": "vinext",
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
       "_framework-DTZGTDtF.js"
     ],
     "dynamicImports": [
-      "_vinext-C8wwvras.js"
+      "_vinext-a00yAzbi.js"
+    ]
+  },
+  "app/course-data.ts": {
+    "file": "_next/static/chunks/course-data-COEt7MZa.js",
+    "name": "course-data",
+    "src": "app/course-data.ts",
+    "isDynamicEntry": true
+  },
+  "app/course-lessons-02-19.ts": {
+    "file": "_next/static/chunks/course-lessons-02-19-D27Y6-B9.js",
+    "name": "course-lessons-02-19",
+    "src": "app/course-lessons-02-19.ts",
+    "isDynamicEntry": true,
+    "imports": [
+      "_course-factory-9PcRttbO.js"
+    ]
+  },
+  "app/course-lessons-20-37.ts": {
+    "file": "_next/static/chunks/course-lessons-20-37-D8WwGt-l.js",
+    "name": "course-lessons-20-37",
+    "src": "app/course-lessons-20-37.ts",
+    "isDynamicEntry": true,
+    "imports": [
+      "_course-factory-9PcRttbO.js"
+    ]
+  },
+  "app/course-lessons-38-52.ts": {
+    "file": "_next/static/chunks/course-lessons-38-52-Dijxza6F.js",
+    "name": "course-lessons-38-52",
+    "src": "app/course-lessons-38-52.ts",
+    "isDynamicEntry": true,
+    "imports": [
+      "_course-factory-9PcRttbO.js"
     ]
   },
   "app/java-code-editor.tsx": {
@@ -32,42 +73,66 @@
     ]
   },
   "app/page.tsx": {
-    "file": "_next/static/chunks/page-CIjy0qbX.js",
+    "file": "_next/static/chunks/page-C4td1i-y.js",
     "name": "page",
     "src": "app/page.tsx",
     "isDynamicEntry": true,
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
       "_framework-DTZGTDtF.js",
-      "_vinext-C8wwvras.js"
+      "_vinext-a00yAzbi.js"
     ],
     "dynamicImports": [
+      "app/course-data.ts",
+      "app/course-lessons-02-19.ts",
+      "app/course-lessons-20-37.ts",
+      "app/course-lessons-38-52.ts",
+      "node_modules/@tauri-apps/plugin-updater/dist-js/index.js",
+      "node_modules/@tauri-apps/plugin-process/dist-js/index.js",
       "app/java-code-editor.tsx"
     ]
   },
+  "node_modules/@tauri-apps/plugin-process/dist-js/index.js": {
+    "file": "_next/static/chunks/dist-js-C5eqIYwC.js",
+    "name": "dist-js",
+    "src": "node_modules/@tauri-apps/plugin-process/dist-js/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_core-BFqLT5rb.js"
+    ]
+  },
+  "node_modules/@tauri-apps/plugin-updater/dist-js/index.js": {
+    "file": "_next/static/chunks/dist-js-B4esCSMB.js",
+    "name": "dist-js",
+    "src": "node_modules/@tauri-apps/plugin-updater/dist-js/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_core-BFqLT5rb.js"
+    ]
+  },
   "node_modules/vinext/dist/shims/layout-segment-context.js": {
-    "file": "_next/static/chunks/layout-segment-context-Dz1YVDLm.js",
+    "file": "_next/static/chunks/layout-segment-context-DjyKvUak.js",
     "name": "layout-segment-context",
     "src": "node_modules/vinext/dist/shims/layout-segment-context.js",
     "isDynamicEntry": true,
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
       "_framework-DTZGTDtF.js",
-      "_vinext-C8wwvras.js"
+      "_vinext-a00yAzbi.js"
     ]
   },
   "virtual:vinext-app-browser-entry": {
-    "file": "_next/static/chunks/index-TUS3iwfE.js",
+    "file": "_next/static/chunks/index-CUgeAwRS.js",
     "name": "index",
     "src": "virtual:vinext-app-browser-entry",
     "isEntry": true,
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
       "_framework-DTZGTDtF.js",
-      "_vinext-C8wwvras.js"
+      "_vinext-a00yAzbi.js"
     ],
     "dynamicImports": [
-      "_vinext-C8wwvras.js",
+      "_vinext-a00yAzbi.js",
       "node_modules/vinext/dist/shims/layout-segment-context.js",
       "app/page.tsx"
     ]

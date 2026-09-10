@@ -60,6 +60,8 @@ fn wait_for_backend(app: tauri::AppHandle, port: u16) {
 pub fn run() {
     let application = tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
         .manage(BackendProcess::default())
         .setup(|app| {
             let port = available_loopback_port()?;

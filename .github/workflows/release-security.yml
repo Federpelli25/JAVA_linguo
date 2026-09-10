@@ -25,13 +25,16 @@ jobs:
         run: test "${GITHUB_REF_NAME#v}" = "$(cat VERSION)"
 
       - name: Crea la release GitHub
+        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-        run: >-
-          gh release create "$GITHUB_REF_NAME"
-          --verify-tag
-          --title "JAVA_linguo $GITHUB_REF_NAME"
-          --generate-notes
+        run: |
+          if ! gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release create "$GITHUB_REF_NAME" \
+              --verify-tag \
+              --title "JAVA_linguo $GITHUB_REF_NAME" \
+              --generate-notes || gh release view "$GITHUB_REF_NAME" >/dev/null
+          fi
 
       - name: Configura Node.js
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6

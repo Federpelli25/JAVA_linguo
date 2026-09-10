@@ -18,7 +18,6 @@ import {
   GraduationCap,
   Lightbulb,
   LoaderCircle,
-  LockKeyhole,
   Play,
   RotateCcw,
   ShieldCheck,
@@ -42,7 +41,9 @@ import {
 import { Progress, ProgressLabel } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { lessonOne, roadmap } from './course-data';
+import { courseManifest, loadLesson } from './course-loader';
+import type { CourseLesson } from './course-types';
+import UpdateCenter from './update-center';
 import { APP_VERSION } from './version';
 
 type Answers = Record<string, string>;
@@ -67,28 +68,44 @@ type TerminalEntry = {
   meta?: string;
 };
 
-const STORAGE_KEY = 'java-linguo-progress-v2';
+type LessonProgress = {
+  tab: string;
+  slide: number;
+  answers: Answers;
+  quizChecked: boolean;
+  labChecks: boolean[];
+  notes: string;
+  completed: boolean;
+  code: string;
+};
+
+type SavedCourse = {
+  activeLesson: string;
+  lessons: Record<string, LessonProgress>;
+};
+
+const STORAGE_KEY = 'java-linguo-progress-v3';
+const PREVIOUS_STORAGE_KEY = 'java-linguo-progress-v2';
 const LEGACY_STORAGE_KEY = 'studio-java-progress-v2';
 const DEFAULT_GITHUB_URL = 'https://github.com/Federpelli25/JAVA_linguo';
-const INITIAL_CODE = `public class Main {
-    public static void main(String[] args) {
-        String input = "Educazione";
-        int actual = countVowels(input);
-
-        System.out.println("Input: " + input);
-        System.out.println("Atteso: 6");
-        System.out.println("Ottenuto: " + actual);
-    }
-
-    static int countVowels(String text) {
-        // TODO: valida null, visita ogni char e conta le vocali.
-        return 0;
-    }
-}`;
+const EMPTY_ANSWERS: Answers = {};
 const JavaCodeEditor = dynamic(() => import('./java-code-editor'), {
   ssr: false,
   loading: () => <output className="editor-loading">Caricamento editor Java…</output>,
 });
+
+function initialProgress(lesson: CourseLesson): LessonProgress {
+  return {
+    tab: 'theory',
+    slide: 0,
+    answers: {},
+    quizChecked: false,
+    labChecks: lesson.lab.map(() => false),
+    notes: '',
+    completed: false,
+    code: lesson.starterCode,
+  };
+}
 
 function inlineCode(text: string) {
   return text.split(/(`[^`]+`)/g).map((part, index) =>
@@ -99,15 +116,11 @@ function inlineCode(text: string) {
 }
 
 export default function Home() {
-  const [tab, setTab] = useState('theory');
-  const [slide, setSlide] = useState(0);
-  const [answers, setAnswers] = useState<Answers>({});
-  const [quizChecked, setQuizChecked] = useState(false);
-  const [labChecks, setLabChecks] = useState([false, false, false]);
-  const [notes, setNotes] = useState('');
-  const [completed, setCompleted] = useState(false);
+  const [activeNumber, setActiveNumber] = useState('01');
+  const [loadedLesson, setLoadedLesson] = useState<CourseLesson | null>(null);
+  const [lessonError, setLessonError] = useState('');
+  const [progressByLesson, setProgressByLesson] = useState<Record<string, LessonProgress>>({});
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
-  const [code, setCode] = useState(INITIAL_CODE);
   const [command, setCommand] = useState('java Main.java');
   const [terminalEntries, setTerminalEntries] = useState<TerminalEntry[]>([]);
   const [running, setRunning] = useState(false);
@@ -122,22 +135,37 @@ export default function Home() {
 
   useEffect(() => {
     queueMicrotask(() => {
-      const raw = window.localStorage.getItem(STORAGE_KEY)
-        ?? window.localStorage.getItem(LEGACY_STORAGE_KEY);
+      const raw = window.localStorage.getItem(STORAGE_KEY);
       if (raw) {
         try {
-          const saved = JSON.parse(raw);
-          setTab(saved.tab ?? 'theory');
-          setSlide(saved.slide ?? 0);
-          setAnswers(saved.answers ?? {});
-          setQuizChecked(saved.quizChecked ?? false);
-          setLabChecks(saved.labChecks ?? [false, false, false]);
-          setNotes(saved.notes ?? '');
-          setCompleted(saved.completed ?? false);
-          setCode(saved.code ?? INITIAL_CODE);
-          window.localStorage.removeItem(LEGACY_STORAGE_KEY);
+          const saved = JSON.parse(raw) as SavedCourse;
+          if (saved.activeLesson) setActiveNumber(saved.activeLesson);
+          setProgressByLesson(saved.lessons ?? {});
         } catch {
           window.localStorage.removeItem(STORAGE_KEY);
+        }
+      } else {
+        const previousRaw = window.localStorage.getItem(PREVIOUS_STORAGE_KEY)
+          ?? window.localStorage.getItem(LEGACY_STORAGE_KEY);
+        if (previousRaw) {
+          try {
+            const previous = JSON.parse(previousRaw) as Partial<LessonProgress>;
+            setProgressByLesson({
+              '01': {
+                tab: previous.tab ?? 'theory',
+                slide: previous.slide ?? 0,
+                answers: previous.answers ?? {},
+                quizChecked: previous.quizChecked ?? false,
+                labChecks: previous.labChecks ?? [false, false, false],
+                notes: previous.notes ?? '',
+                completed: previous.completed ?? false,
+                code: previous.code ?? '',
+              },
+            });
+          } catch {
+            window.localStorage.removeItem(PREVIOUS_STORAGE_KEY);
+            window.localStorage.removeItem(LEGACY_STORAGE_KEY);
+          }
         }
       }
       setHydrated(true);
@@ -162,41 +190,88 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
+    loadLesson(activeNumber)
+      .then((loaded) => {
+        if (cancelled) return;
+        setLoadedLesson(loaded);
+        setProgressByLesson((current) => {
+          const saved = current[loaded.number];
+          const defaults = initialProgress(loaded);
+          return {
+            ...current,
+            [loaded.number]: saved
+              ? {
+                ...defaults,
+                ...saved,
+                slide: Math.min(Math.max(0, saved.slide ?? 0), loaded.theory.length - 1),
+                labChecks: loaded.lab.map((_, index) => saved.labChecks?.[index] ?? false),
+                code: saved.code || loaded.starterCode,
+              }
+              : defaults,
+          };
+        });
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) setLessonError(error instanceof Error ? error.message : 'Lezione non disponibile.');
+      });
+    return () => { cancelled = true; };
+  }, [activeNumber]);
+
+  useEffect(() => {
     if (!hydrated) return;
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      tab,
-      slide,
-      answers,
-      quizChecked,
-      labChecks,
-      notes,
-      completed,
-      code,
-    }));
-  }, [tab, slide, answers, quizChecked, labChecks, notes, completed, code, hydrated]);
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ activeLesson: activeNumber, lessons: progressByLesson } satisfies SavedCourse));
+    window.localStorage.removeItem(PREVIOUS_STORAGE_KEY);
+    window.localStorage.removeItem(LEGACY_STORAGE_KEY);
+  }, [activeNumber, progressByLesson, hydrated]);
+
+  const lesson = loadedLesson?.number === activeNumber ? loadedLesson : null;
+  const lessonProgress = lesson ? progressByLesson[lesson.number] : undefined;
+  const answers = lessonProgress?.answers ?? EMPTY_ANSWERS;
+  const slide = lessonProgress?.slide ?? 0;
+  const labChecks = lessonProgress?.labChecks ?? [];
+  const quizChecked = lessonProgress?.quizChecked ?? false;
+  const completed = lessonProgress?.completed ?? false;
+  const tab = lessonProgress?.tab ?? 'theory';
+  const code = lessonProgress?.code ?? '';
+  const notes = lessonProgress?.notes ?? '';
 
   const quizScore = useMemo(
-    () => lessonOne.quiz.filter((question) => answers[question.id] === question.correct).length,
-    [answers],
+    () => lesson?.quiz.filter((question) => answers[question.id] === question.correct).length ?? 0,
+    [answers, lesson],
   );
-  const quizPassed = quizChecked && quizScore === lessonOne.quiz.length;
+  const quizPassed = Boolean(lesson && quizChecked && quizScore === lesson.quiz.length);
   const progress = completed ? 100 : Math.min(99, Math.round(
-    ((slide + 1) / lessonOne.theory.length) * 35
-      + (quizPassed ? 30 : quizChecked ? (quizScore / lessonOne.quiz.length) * 30 : 0)
-      + (labChecks.filter(Boolean).length / labChecks.length) * 35,
+    lesson
+      ? ((slide + 1) / lesson.theory.length) * 35
+        + (quizPassed ? 30 : quizChecked ? (quizScore / lesson.quiz.length) * 30 : 0)
+        + (labChecks.length ? (labChecks.filter(Boolean).length / labChecks.length) * 35 : 0)
+      : 0,
   ));
-  const section = lessonOne.theory[slide];
+  const section = lesson?.theory[slide];
+
+  function updateProgress(patch: Partial<LessonProgress>) {
+    if (!lesson) return;
+    setProgressByLesson((current) => ({
+      ...current,
+      [lesson.number]: { ...(current[lesson.number] ?? initialProgress(lesson)), ...patch },
+    }));
+  }
+
+  function setTab(value: string) {
+    updateProgress({ tab: value });
+  }
+
+  function openLesson(number: string) {
+    setLessonError('');
+    setActiveNumber(number);
+    setTerminalEntries([]);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   function resetProgress() {
-    window.localStorage.removeItem(STORAGE_KEY);
-    window.localStorage.removeItem(LEGACY_STORAGE_KEY);
-    setTab('theory');
-    setSlide(0);
-    setAnswers({});
-    setQuizChecked(false);
-    setLabChecks([false, false, false]);
-    setNotes('');
-    setCompleted(false);
-    setCode(INITIAL_CODE);
+    if (!lesson) return;
+    setProgressByLesson((current) => ({ ...current, [lesson.number]: initialProgress(lesson) }));
     setTerminalEntries([]);
   }
 
@@ -231,7 +306,7 @@ export default function Home() {
           'Content-Type': 'application/json',
         },
         credentials: 'same-origin',
-        body: JSON.stringify({ code, command: normalized }),
+        body: JSON.stringify({ code: lessonProgress?.code ?? '', command: normalized }),
       });
       const result = await response.json() as CommandResult;
       appendTerminal({
@@ -258,6 +333,17 @@ export default function Home() {
     }
   }
 
+  if (!lesson || !lessonProgress || !section) {
+    return (
+      <main className="lesson-loading-screen">
+        <Image src="/favicon.svg" alt="JAVA_linguo" width={56} height={56} unoptimized />
+        {lessonError
+          ? <><strong>Impossibile aprire la lezione</strong><p>{lessonError}</p><Button onClick={() => setActiveNumber('01')}>Torna alla lezione 01</Button></>
+          : <><LoaderCircle className="spin" /><strong>Preparazione lezione {activeNumber}…</strong></>}
+      </main>
+    );
+  }
+
   return (
     <main className="app-shell">
       <aside className="course-rail">
@@ -267,16 +353,19 @@ export default function Home() {
         </div>
         <div className="rail-label">Percorso accademico</div>
         <nav aria-label="Lezioni del corso" className="lesson-list">
-          {roadmap.map((item) => (
-            <button className={`lesson-row ${item.status === 'available' ? 'active' : ''}`} disabled={item.status !== 'available'} key={item.number}>
+          {courseManifest.map((item) => {
+            const itemCompleted = progressByLesson[item.number]?.completed;
+            const active = item.number === lesson.number;
+            return (
+            <button className={`lesson-row ${active ? 'active' : ''}`} onClick={() => openLesson(item.number)} key={item.number} aria-current={active ? 'page' : undefined}>
               <span className="lesson-number">{item.number}</span>
               <span className="lesson-copy">
                 <strong>{item.title}</strong>
-                <small>{item.status === 'available' ? (completed ? 'Completata' : 'In corso') : item.status === 'next' ? 'Prossima lezione' : 'Bloccata'}</small>
+                <small>{itemCompleted ? 'Completata' : active ? 'In corso' : `${item.level} · JDK ${item.minimumJdk}`}</small>
               </span>
-              {item.status === 'available' ? <ChevronRight /> : <LockKeyhole />}
+              {itemCompleted ? <CheckCircle2 /> : <ChevronRight />}
             </button>
-          ))}
+          );})}
         </nav>
         <div className="release-note">
           <CalendarClock />
@@ -293,8 +382,14 @@ export default function Home() {
         <Tabs value={tab} onValueChange={setTab} className="lesson-tabs">
           <header className="topbar">
             <div className="lesson-identity">
-              <div className="breadcrumb">Fondamenta <ChevronRight /> Lezione 01</div>
-              <h1>{lessonOne.title}</h1>
+              <div className="breadcrumb">{lesson.area} <ChevronRight /> Lezione {lesson.number}</div>
+              <h1>{lesson.title}</h1>
+              <label className="lesson-picker-label" htmlFor="lesson-picker">
+                <span>Scegli lezione</span>
+                <select id="lesson-picker" value={lesson.number} onChange={(event) => openLesson(event.target.value)}>
+                  {courseManifest.map((item) => <option value={item.number} key={item.number}>{item.number} · {item.title}</option>)}
+                </select>
+              </label>
             </div>
             <TabsList className="header-tabs" aria-label="Fasi della lezione">
               <TabsTrigger value="theory"><BookOpen /> <span>Teoria</span></TabsTrigger>
@@ -305,6 +400,7 @@ export default function Home() {
               <Progress value={progress} className="course-progress">
                 <ProgressLabel>Progresso</ProgressLabel><span className="progress-value">{progress}%</span>
               </Progress>
+              <UpdateCenter currentVersion={APP_VERSION} />
               <AlertDialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
                 <AlertDialogTrigger render={<Button variant="ghost" size="icon" />} aria-label="Azzera progressi">
                   <RotateCcw />
@@ -314,7 +410,7 @@ export default function Home() {
                     <AlertDialogMedia className="reset-dialog-icon"><RotateCcw /></AlertDialogMedia>
                     <AlertDialogTitle>Azzerare questa lezione?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Verranno cancellati progressi, risposte, appunti e codice salvati per la lezione 01. L’operazione non può essere annullata.
+                      Verranno cancellati progressi, risposte, appunti e codice salvati per la lezione {lesson.number}. L’operazione non può essere annullata.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -329,7 +425,7 @@ export default function Home() {
           <TabsContent value="theory" className="content-panel">
             <div className="theory-layout">
               <article className="lesson-card">
-                <div className="card-meta"><span>{section.kicker}</span><span>{slide + 1} / {lessonOne.theory.length}</span></div>
+                <div className="card-meta"><span>{section.kicker}</span><span>{slide + 1} / {lesson.theory.length}</span></div>
                 <h2>{inlineCode(section.title)}</h2>
                 <p className="lead">{section.lead}</p>
                 <div className="plain-language"><span>In parole semplici</span><p>{inlineCode(section.plain)}</p></div>
@@ -341,22 +437,24 @@ export default function Home() {
                 {section.walkthrough && <div className="walkthrough"><span>Passo per passo</span><ol>{section.walkthrough.map((step) => <li key={step}>{inlineCode(step)}</li>)}</ol></div>}
                 <div className="callout"><Lightbulb /><p>{inlineCode(section.callout)}</p></div>
                 <div className="lesson-controls">
-                  <Button variant="outline" onClick={() => setSlide(Math.max(0, slide - 1))} disabled={slide === 0}><ArrowLeft /> Indietro</Button>
-                  {slide < lessonOne.theory.length - 1
-                    ? <Button onClick={() => setSlide(slide + 1)}>Continua <ArrowRight /></Button>
+                  <Button variant="outline" onClick={() => updateProgress({ slide: Math.max(0, slide - 1) })} disabled={slide === 0}><ArrowLeft /> Indietro</Button>
+                  {slide < lesson.theory.length - 1
+                    ? <Button onClick={() => updateProgress({ slide: slide + 1 })}>Continua <ArrowRight /></Button>
                     : <Button onClick={() => setTab('quiz')}>Vai alla verifica <ArrowRight /></Button>}
                 </div>
               </article>
               <aside className="study-aside">
-                <div className="session-card"><GraduationCap /><div><span>Sessione</span><strong>{lessonOne.duration}</strong></div></div>
+                <div className="session-card"><GraduationCap /><div><span>{lesson.level} · JDK {lesson.minimumJdk}+</span><strong>{lesson.duration}</strong></div></div>
+                <div className="aside-card lesson-outcome"><b>Risultato atteso</b><p>{lesson.outcome}</p><small>Prerequisiti: {lesson.prerequisites.join(' · ')}</small></div>
                 <div className="aside-card question-card"><b>Prima di proseguire</b><p>{inlineCode(section.question)}</p><small>Rispondi a voce senza rileggere.</small></div>
                 <div className="slide-map">
-                  {lessonOne.theory.map((item, index) => (
-                    <button key={item.title} className={index === slide ? 'current' : index < slide ? 'visited' : ''} onClick={() => setSlide(index)} aria-label={`Scheda ${index + 1}`}>
+                  {lesson.theory.map((item, index) => (
+                    <button key={item.title} className={index === slide ? 'current' : index < slide ? 'visited' : ''} onClick={() => updateProgress({ slide: index })} aria-label={`Scheda ${index + 1}`}>
                       <span>{index < slide ? <Check /> : index + 1}</span><small>{item.kicker}</small>
                     </button>
                   ))}
                 </div>
+                <div className="aside-card lesson-sources"><b>Fonti ufficiali</b>{lesson.sources.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.url}>{source.label}</a>)}</div>
               </aside>
             </div>
           </TabsContent>
@@ -364,11 +462,11 @@ export default function Home() {
           <TabsContent value="quiz" className="content-panel">
             <div className="section-heading"><span>Checkpoint</span><h2>Verifica ciò che hai capito</h2><p>Rispondi senza tornare alla teoria. Puoi riprovare tutte le volte che vuoi.</p></div>
             <div className="quiz-grid">
-              {lessonOne.quiz.map((question, index) => {
+              {lesson.quiz.map((question, index) => {
                 const correct = answers[question.id] === question.correct;
                 return <article className={`quiz-card ${quizChecked ? (correct ? 'correct' : 'incorrect') : ''}`} key={question.id}>
                   <div className="question-number">0{index + 1}</div><h3>{question.question}</h3>
-                  <RadioGroup value={answers[question.id] ?? ''} onValueChange={(value) => { setAnswers({ ...answers, [question.id]: String(value) }); setQuizChecked(false); }} aria-label={question.question}>
+                  <RadioGroup value={answers[question.id] ?? ''} onValueChange={(value) => updateProgress({ answers: { ...answers, [question.id]: String(value) }, quizChecked: false })} aria-label={question.question}>
                     {question.options.map((option) => <label className="option-row" key={option.id}><RadioGroupItem value={option.id} /><span>{option.label}</span></label>)}
                   </RadioGroup>
                   {quizChecked && <p className="answer-feedback">{correct ? <CheckCircle2 /> : <Lightbulb />}{question.explanation}</p>}
@@ -376,8 +474,8 @@ export default function Home() {
               })}
             </div>
             <div className="quiz-actions">
-              {quizChecked && <div className={`score ${quizPassed ? 'passed' : ''}`}>{quizScore}/{lessonOne.quiz.length} corrette</div>}
-              <Button variant={quizPassed ? 'outline' : 'default'} disabled={Object.keys(answers).length !== lessonOne.quiz.length} onClick={() => setQuizChecked(true)}>Controlla risposte</Button>
+              {quizChecked && <div className={`score ${quizPassed ? 'passed' : ''}`}>{quizScore}/{lesson.quiz.length} corrette</div>}
+              <Button variant={quizPassed ? 'outline' : 'default'} disabled={Object.keys(answers).length !== lesson.quiz.length} onClick={() => updateProgress({ quizChecked: true })}>Controlla risposte</Button>
               {quizPassed && <Button onClick={() => setTab('lab')}>Apri il laboratorio <ArrowRight /></Button>}
             </div>
           </TabsContent>
@@ -394,8 +492,8 @@ export default function Home() {
             <section className="lab-briefing" aria-labelledby="lab-briefing-title">
               <div className="lab-briefing-copy">
                 <span>Metodo di lavoro</span>
-                <h3 id="lab-briefing-title">Affronta una missione alla volta</h3>
-                <p>Nel file iniziale trovi lo scheletro della Missione A. Completa e verifica quel metodo, poi aggiungi sotto di esso i metodi delle Missioni B e C. Aggiorna il <code>main</code> con piccoli casi di prova per osservare ogni risultato.</p>
+                <h3 id="lab-briefing-title">Dalla consegna a una soluzione verificabile</h3>
+                <p>Nel file iniziale trovi lo scheletro del metodo richiesto. Prima traduci la consegna in input, output e casi limite; poi completa il TODO e modifica il <code>main</code> con prove piccole. La missione è conclusa solo quando sai spiegare perché la soluzione rispetta il contratto.</p>
               </div>
               <ol className="lab-workflow">
                 <li><span>1</span><div><strong>Prevedi</strong><small>Scrivi su carta il risultato di almeno un esempio.</small></div></li>
@@ -405,8 +503,8 @@ export default function Home() {
               </ol>
             </section>
 
-            <Accordion className="mission-grid" defaultValue={['countVowels']}>
-              {lessonOne.lab.map((mission, index) => <AccordionItem className="mission-card" value={mission.method} key={mission.method}>
+            <Accordion className="mission-grid" defaultValue={[lesson.lab[0]?.method]}>
+              {lesson.lab.map((mission, index) => <AccordionItem className="mission-card" value={mission.method} key={mission.method}>
                 <AccordionTrigger className="mission-trigger">
                   <div className="mission-topline"><span>{mission.title}</span><code>{mission.method}()</code></div>
                 </AccordionTrigger>
@@ -439,7 +537,7 @@ export default function Home() {
                     <div><span>Spiega la tua scelta</span><p>{mission.reflection}</p></div>
                     <div><span>Sfida facoltativa</span><p>{mission.challenge}</p></div>
                   </div>
-                  <label className="mission-check" htmlFor={`mission-${index}`}><Checkbox id={`mission-${index}`} checked={labChecks[index]} onCheckedChange={(checked) => setLabChecks(labChecks.map((value, itemIndex) => itemIndex === index ? checked === true : value))} />Ho implementato il metodo, verificato tutti i casi e scritto la motivazione</label>
+                  <label className="mission-check" htmlFor={`mission-${lesson.number}-${index}`}><Checkbox id={`mission-${lesson.number}-${index}`} checked={labChecks[index]} onCheckedChange={(checked) => updateProgress({ labChecks: labChecks.map((value, itemIndex) => itemIndex === index ? checked === true : value) })} />Ho implementato il metodo, verificato tutti i casi e scritto la motivazione</label>
                 </AccordionContent>
               </AccordionItem>)}
             </Accordion>
@@ -456,9 +554,9 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="editor-surface" onKeyDownCapture={editorShortcut}>
-                  {tab === 'lab' && <JavaCodeEditor value={code} onChange={setCode} />}
+                  {tab === 'lab' && <JavaCodeEditor value={code} onChange={(value) => updateProgress({ code: value })} />}
                 </div>
-                <div className="editor-footer"><span>Java 25</span><span>Ctrl + Invio per eseguire</span><span>Salvataggio locale automatico</span></div>
+                <div className="editor-footer"><span>JDK {lesson.minimumJdk}+</span><span>Ctrl + Invio per eseguire</span><span>Salvataggio locale automatico</span></div>
               </section>
 
               <section className="terminal-card" aria-label="Terminale Java limitato">
@@ -493,9 +591,9 @@ export default function Home() {
             </div>
             <div className="lab-bottom">
               <div className="command-card"><span>Comando consigliato</span><code>java Main.java</code><small>Compila ed esegue il file sorgente nel container temporaneo.</small></div>
-              <label className="notes-card" htmlFor="lab-notes"><span>Diario rapido</span><textarea id="lab-notes" value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Errore, causa, cosa hai imparato…" /></label>
+              <label className="notes-card" htmlFor="lab-notes"><span>Diario rapido</span><textarea id="lab-notes" value={notes} onChange={(event) => updateProgress({ notes: event.target.value })} placeholder="Errore, causa, cosa hai imparato…" /></label>
             </div>
-            {labChecks.every(Boolean) && <div className={`completion-card ${completed ? 'done' : ''}`}><CheckCircle2 /><div><span>{completed ? 'Lezione completata' : 'Ultimo checkpoint'}</span><h3>{completed ? 'Riscrivi domani la parte centrale senza guardare.' : 'Se output e casi limite sono corretti, completa la lezione.'}</h3></div>{!completed && <Button onClick={() => setCompleted(true)}>Segna come completata</Button>}</div>}
+            {labChecks.length > 0 && labChecks.every(Boolean) && <div className={`completion-card ${completed ? 'done' : ''}`}><CheckCircle2 /><div><span>{completed ? 'Lezione completata' : 'Ultimo checkpoint'}</span><h3>{completed ? 'Riscrivi domani la parte centrale senza guardare.' : 'Se output e casi limite sono corretti, completa la lezione.'}</h3></div>{!completed && <Button onClick={() => updateProgress({ completed: true })}>Segna come completata</Button>}</div>}
           </TabsContent>
         </Tabs>
       </section>

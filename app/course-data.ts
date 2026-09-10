@@ -1,42 +1,59 @@
-export type TheorySection = {
-  kicker: string;
-  title: string;
-  lead: string;
-  plain: string;
-  analogy?: string;
-  points: string[];
-  code?: string;
-  walkthrough?: string[];
-  callout: string;
-  question: string;
-};
+import type { CourseLesson, LabMission, QuizQuestion, TheorySection } from './course-types';
 
-export type QuizQuestion = {
-  id: string;
-  question: string;
-  options: { id: string; label: string }[];
-  correct: string;
-  explanation: string;
-};
-
-export type LabMission = {
-  method: string;
-  title: string;
-  signature: string;
-  scenario: string;
-  goal: string;
-  steps: string[];
-  constraints: string[];
-  examples: { input: string; output: string; purpose: string }[];
-  acceptance: string[];
-  reflection: string;
-  challenge: string;
-};
+export type { CourseLesson, LabMission, QuizQuestion, TheorySection } from './course-types';
 
 export const lessonOne = {
   number: '01',
   title: 'Stringhe, cicli e casi limite',
+  area: 'Fondamenti e problem solving',
+  level: 'Fondamenti',
   duration: '60–75 min',
+  minimumJdk: '17',
+  prerequisites: ['Nessuna esperienza Java richiesta', 'Saper distinguere testo e numero'],
+  keywords: ['String', 'char', 'for', 'indice', 'accumulatore', 'StringBuilder'],
+  sources: [
+    { label: 'JLS §10 — Array e indici', url: 'https://docs.oracle.com/javase/specs/jls/se25/html/jls-10.html' },
+    { label: 'JLS §14 — Istruzioni e cicli', url: 'https://docs.oracle.com/javase/specs/jls/se25/html/jls-14.html' },
+    { label: 'API String — Java SE 25', url: 'https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html' },
+  ],
+  outcome: 'Un analizzatore testuale che conta elementi e gruppi e costruisce una nuova String senza modificare l’originale.',
+  objectives: [
+    'Spiegare la differenza tra String, char, stringa vuota e riferimento null.',
+    'Prevedere le iterazioni di un ciclo indicizzato tracciando indice e accumulatore.',
+    'Implementare metodi che rispettano un contratto e gestiscono casi limite.',
+    'Confrontare concatenazione iterativa e StringBuilder motivandone i costi.',
+  ],
+  guidedExercise: [
+    'Traccia su carta gli indici e i caratteri della String “A2B7”.',
+    'Conta soltanto le cifre mantenendo un risultato parziale.',
+    'Ripeti autonomamente con String vuota e un solo carattere.',
+  ],
+  summary: [
+    'Gli indici validi vanno da 0 a length() − 1.',
+    'La validazione precede ogni uso del parametro.',
+    'Un accumulatore descrive il risultato ottenuto sugli elementi già visitati.',
+    'StringBuilder evita di creare una catena di String intermedie.',
+  ],
+  reviewQuestions: [
+    'Come dimostri che un ciclo non supera l’ultimo indice?',
+    'Quale invariante descrive il valore del contatore?',
+    'Quando useresti una transizione di stato invece di un semplice conteggio?',
+  ],
+  starterCode: `public class Main {
+    public static void main(String[] args) {
+        String input = "Educazione";
+        int actual = countVowels(input);
+
+        System.out.println("Input: " + input);
+        System.out.println("Atteso: 6");
+        System.out.println("Ottenuto: " + actual);
+    }
+
+    static int countVowels(String text) {
+        // TODO: valida null, visita ogni char e conta le vocali.
+        return 0;
+    }
+}`,
   theory: [
     {
       kicker: '01 · Il modello mentale',
@@ -356,15 +373,4 @@ export const lessonOne = {
       challenge: 'Usa il metodo per verificare se una parola è palindroma ignorando maiuscole e minuscole, senza cambiare reverse().',
     },
   ] satisfies LabMission[],
-};
-
-export const roadmap = [
-  { number: '01', title: lessonOne.title, status: 'available' },
-  { number: '02', title: 'Metodi, scope e debug', status: 'next' },
-  { number: '03', title: 'Array e collezioni', status: 'locked' },
-  { number: '04', title: 'Classi, record e oggetti', status: 'locked' },
-  { number: '05', title: 'Eccezioni e file', status: 'locked' },
-  { number: '06', title: 'Generics e contratti', status: 'locked' },
-  { number: '07', title: 'Lambda e Stream', status: 'locked' },
-  { number: '08', title: 'Concorrenza moderna', status: 'locked' },
-] as const;
+} satisfies CourseLesson;

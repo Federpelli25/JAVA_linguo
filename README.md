@@ -1,14 +1,14 @@
 # JAVA_linguo
 
-[![Versione](https://img.shields.io/badge/versione-0.5.0-006b57)](https://github.com/Federpelli25/JAVA_linguo/releases)
+[![Versione](https://img.shields.io/badge/versione-0.6.0-006b57)](https://github.com/Federpelli25/JAVA_linguo/releases)
 [![Java](https://img.shields.io/badge/Java-25%20LTS-e76f00)](https://www.oracle.com/java/technologies/java-se-support-roadmap.html)
-[![Scarica per Windows](https://img.shields.io/badge/Scarica_per_Windows-.exe-0a7c66?logo=windows)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-windows-x64.setup.exe)
-[![Scarica per macOS Apple Silicon](https://img.shields.io/badge/macOS_Apple_Silicon-.dmg-0a7c66?logo=apple)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-macos-arm64.dmg)
-[![Scarica per macOS Intel](https://img.shields.io/badge/macOS_Intel-.dmg-0a7c66?logo=apple)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-macos-x64.dmg)
-[![Scarica il pacchetto Linux](https://img.shields.io/badge/Linux_Debian_Ubuntu-.deb-0a7c66?logo=linux)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-linux-x64.deb)
-[![Scarica AppImage](https://img.shields.io/badge/Linux_portabile-.AppImage-0a7c66?logo=linux)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-linux-x64.AppImage)
+[![Scarica per Windows](https://img.shields.io/badge/Scarica_per_Windows-.exe-0a7c66?logo=windows)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.6.0/JAVA_linguo-v0.6.0-windows-x64.setup.exe)
+[![Scarica per macOS Apple Silicon](https://img.shields.io/badge/macOS_Apple_Silicon-.dmg-0a7c66?logo=apple)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.6.0/JAVA_linguo-v0.6.0-macos-arm64.dmg)
+[![Scarica per macOS Intel](https://img.shields.io/badge/macOS_Intel-.dmg-0a7c66?logo=apple)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.6.0/JAVA_linguo-v0.6.0-macos-x64.dmg)
+[![Scarica il pacchetto Linux](https://img.shields.io/badge/Linux_Debian_Ubuntu-.deb-0a7c66?logo=linux)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.6.0/JAVA_linguo-v0.6.0-linux-x64.deb)
+[![Scarica AppImage](https://img.shields.io/badge/Linux_portabile-.AppImage-0a7c66?logo=linux)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.6.0/JAVA_linguo-v0.6.0-linux-x64.AppImage)
 
-JAVA_linguo è un'applicazione didattica open source per studiare Java con un percorso strutturato: teoria, verifica e laboratorio pratico. Le spiegazioni e gli esercizi hanno un livello di approfondimento simile a un corso universitario.
+JAVA_linguo è un'applicazione didattica open source per studiare Java con un percorso strutturato: teoria, verifica e laboratorio pratico. Il corso completo comprende **52 lezioni selezionabili**, dai fondamenti a Java 25 e a quattro progetti conclusivi, con un livello di approfondimento simile a un corso universitario.
 
 > **Nuovo materiale ogni due settimane.** Il progetto viene aggiornato con lezioni, esercizi, approfondimenti sulle versioni Java e miglioramenti dell'esperienza di studio.
 
@@ -18,11 +18,11 @@ Non devi installare Python, Node.js o Java: l'app contiene già tutto ciò che s
 
 ### Download diretto
 
-- **Windows 10/11 a 64 bit:** [⬇ Scarica JAVA_linguo (`.exe`)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-windows-x64.setup.exe)
-- **Mac con chip Apple:** [⬇ Scarica JAVA_linguo (`.dmg` Apple Silicon)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-macos-arm64.dmg)
-- **Mac con processore Intel:** [⬇ Scarica JAVA_linguo (`.dmg` Intel)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-macos-x64.dmg)
-- **Ubuntu, Debian e Mint:** [⬇ Scarica JAVA_linguo (`.deb`)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-linux-x64.deb)
-- **Altre distribuzioni Linux:** [⬇ Scarica JAVA_linguo (`.AppImage`)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-linux-x64.AppImage)
+- **Windows 10/11 a 64 bit:** [⬇ Scarica JAVA_linguo (`.exe`)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.6.0/JAVA_linguo-v0.6.0-windows-x64.setup.exe)
+- **Mac con chip Apple:** [⬇ Scarica JAVA_linguo (`.dmg` Apple Silicon)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.6.0/JAVA_linguo-v0.6.0-macos-arm64.dmg)
+- **Mac con processore Intel:** [⬇ Scarica JAVA_linguo (`.dmg` Intel)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.6.0/JAVA_linguo-v0.6.0-macos-x64.dmg)
+- **Ubuntu, Debian e Mint:** [⬇ Scarica JAVA_linguo (`.deb`)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.6.0/JAVA_linguo-v0.6.0-linux-x64.deb)
+- **Altre distribuzioni Linux:** [⬇ Scarica JAVA_linguo (`.AppImage`)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.6.0/JAVA_linguo-v0.6.0-linux-x64.AppImage)
 
 Ogni collegamento punta direttamente all'installer ufficiale: facendo clic, il browser avvia il download senza richiedere di cercare il file nella pagina Releases.
 
@@ -32,11 +32,11 @@ Puoi scaricare ogni installer direttamente da questa tabella. La pagina **[Relea
 
 | Sistema | Download diretto | Come scegliere |
 | --- | --- | --- |
-| Windows 10/11 a 64 bit | [Scarica `.exe`](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-windows-x64.setup.exe) | Scelta corretta per quasi tutti i PC Windows |
-| Mac con chip Apple | [Scarica `.dmg` Apple Silicon](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-macos-arm64.dmg) | Per M1, M2, M3, M4 e successivi |
-| Mac con processore Intel | [Scarica `.dmg` Intel](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-macos-x64.dmg) | In ** → Informazioni su questo Mac** compare “Intel” |
-| Ubuntu, Debian, Mint | [Scarica `.deb`](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-linux-x64.deb) | Installazione integrata nel sistema |
-| Altre distribuzioni Linux | [Scarica `.AppImage`](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.5.0/JAVA_linguo-v0.5.0-linux-x64.AppImage) | File portabile, senza installazione |
+| Windows 10/11 a 64 bit | [Scarica `.exe`](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.6.0/JAVA_linguo-v0.6.0-windows-x64.setup.exe) | Scelta corretta per quasi tutti i PC Windows |
+| Mac con chip Apple | [Scarica `.dmg` Apple Silicon](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.6.0/JAVA_linguo-v0.6.0-macos-arm64.dmg) | Per M1, M2, M3, M4 e successivi |
+| Mac con processore Intel | [Scarica `.dmg` Intel](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.6.0/JAVA_linguo-v0.6.0-macos-x64.dmg) | In ** → Informazioni su questo Mac** compare “Intel” |
+| Ubuntu, Debian, Mint | [Scarica `.deb`](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.6.0/JAVA_linguo-v0.6.0-linux-x64.deb) | Installazione integrata nel sistema |
+| Altre distribuzioni Linux | [Scarica `.AppImage`](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.6.0/JAVA_linguo-v0.6.0-linux-x64.AppImage) | File portabile, senza installazione |
 
 I file che terminano con `.sha256` servono a verificare l'integrità: non sono installer.
 
@@ -102,8 +102,10 @@ Gli installer attuali non sono ancora firmati con un certificato commerciale. Fi
 - verifiche con feedback ragionato;
 - editor Java e terminale integrati nel laboratorio;
 - esecuzione del codice in un container Docker temporaneo e isolato;
-- progressi, codice e appunti salvati soltanto sul dispositivo;
-- percorso predisposto per ricevere nuove lezioni senza ricreare l'app.
+- progressi, codice e appunti indipendenti per ciascuna delle 52 lezioni e salvati soltanto sul dispositivo;
+- controllo automatico degli aggiornamenti firmati a ogni avvio dell'app desktop.
+
+Il percorso è diviso in fondamenti, dati e algoritmi, modellazione a oggetti, libreria standard, generics e stile funzionale, concorrenza, ingegneria Java, JVM e prestazioni. Le lezioni 49–52 sono progetti conclusivi: biblioteca a oggetti, analizzatore di file, aggregatore concorrente e applicazione stratificata.
 
 ## Alternativa: avvio dal sorgente
 
@@ -167,7 +169,13 @@ Il repository include inoltre test automatici, lint, build, audit delle dipenden
 
 ## Aggiornamenti e versioni
 
-Se hai installato l'app, scarica la nuova versione dalla pagina [Releases](https://github.com/Federpelli25/JAVA_linguo/releases). Se usi Git:
+L'app desktop controlla automaticamente la disponibilità di una nuova versione. Quando trova un aggiornamento mostra note e numero di versione: scegli **Scarica e installa** e JAVA_linguo verifica la firma, installa il pacchetto corretto per il sistema e si riavvia. L'installazione non avviene senza la tua conferma.
+
+> L'updater nasce con la versione 0.6.0: chi usa la 0.5.0 o una versione precedente deve installare manualmente la 0.6.0 una sola volta. Gli aggiornamenti successivi verranno proposti direttamente nell'app.
+
+La firma dell'updater garantisce l'integrità del pacchetto ma è distinta dalla firma commerciale del produttore; Windows SmartScreen o macOS possono quindi continuare a mostrare l'avviso descritto nell'installazione.
+
+Se usi il progetto dal sorgente tramite Git:
 
 ```powershell
 git pull
@@ -186,6 +194,7 @@ Per modificare l'interfaccia servono Node.js 22.13 o successivo e npm:
 ```powershell
 npm ci --ignore-scripts
 npm run lint
+npm run course:validate
 npm run build
 py -m unittest discover -s tests -v
 ```
@@ -197,7 +206,7 @@ py -m pip install -r requirements-desktop.txt
 npm run desktop:build
 ```
 
-Le build ufficiali sono generate dalle pipeline `Integrità release` e `Installer desktop`; il push di un tag semantico crea automaticamente la relativa release GitHub e tutti gli installer. Prima di sviluppare nuove componenti o lezioni, leggere integralmente le istruzioni in `dev-guides`.
+Le build ufficiali sono generate dalle pipeline `Integrità release` e `Installer desktop`; il push di un tag semantico crea automaticamente la relativa release GitHub, gli installer, le firme e `latest.json` usato dall'updater. La chiave privata Tauri deve essere configurata come secret GitHub seguendo `dev-guides/RILASCI.md`. Prima di sviluppare nuove componenti o lezioni, leggere integralmente le istruzioni in `dev-guides`.
 
 ## Repository
 

@@ -2,6 +2,28 @@
 
 Tutte le modifiche rilevanti di JAVA_linguo sono documentate in questo file. Il progetto segue il versionamento semantico.
 
+## [0.6.0] - 2026-09-10
+
+### Aggiunto
+
+- corso Java completo di 52 lezioni: 48 lezioni progressive e 4 capstone, dai fondamenti fino a Java 25, JVM, concorrenza e architettura;
+- teoria in sei sezioni, almeno cinque domande di verifica, laboratorio guidato, casi limite, rubriche e fonti ufficiali per ogni nuova lezione;
+- selezione libera delle lezioni e salvataggio separato di avanzamento, risposte, appunti e codice;
+- controllo automatico degli aggiornamenti tramite plugin ufficiale Tauri, con dialogo di conferma, avanzamento download, installazione e riavvio;
+- pacchetti updater firmati e manifest `latest.json` generati dalla pipeline desktop per Windows, macOS e Linux;
+- validatore del catalogo che controlla completezza e compila tutti i 52 file iniziali `Main.java`.
+
+### Migliorato
+
+- catalogo caricato in gruppi dinamici per mantenere leggera la schermata iniziale anche con l'intero corso;
+- navigazione mobile con selettore delle lezioni e metadati didattici con prerequisiti, obiettivo e fonti;
+- procedura di release resa idempotente e serializzata per evitare conflitti durante la generazione del manifest multi-piattaforma.
+
+### Sicurezza
+
+- verifica crittografica Tauri obbligatoria prima dell'installazione di ogni aggiornamento;
+- chiave privata esclusa dal repository e procedura dedicata per salvarla nei GitHub Actions Secrets.
+
 ## [0.5.0] - 2026-09-09
 
 ### Aggiunto

@@ -1,5 +1,6 @@
 import hashlib
 import json
+import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -15,12 +16,16 @@ class DesktopConfigurationTests(unittest.TestCase):
     def test_product_name_and_versions_are_synchronized(self) -> None:
         tauri_config = json.loads((ROOT / "src-tauri" / "tauri.conf.json").read_text())
         package = json.loads((ROOT / "package.json").read_text())
+        cargo_manifest = (ROOT / "src-tauri" / "Cargo.toml").read_text()
+        app_version = (ROOT / "app" / "version.ts").read_text()
         version = (ROOT / "VERSION").read_text().strip()
 
         self.assertEqual(tauri_config["productName"], "JAVA_linguo")
         self.assertEqual(tauri_config["identifier"], "com.federpelli25.java-linguo")
         self.assertEqual(tauri_config["version"], version)
         self.assertEqual(package["version"], version)
+        self.assertIn(f'version = "{version}"', cargo_manifest)
+        self.assertEqual(re.search(r"APP_VERSION = '([^']+)'", app_version).group(1), version)
         self.assertEqual(
             tauri_config["bundle"]["externalBin"],
             ["binaries/java-linguo-backend"],
@@ -32,6 +37,25 @@ class DesktopConfigurationTests(unittest.TestCase):
         for icon in tauri_config["bundle"]["icon"]:
             self.assertTrue((ROOT / "src-tauri" / icon).is_file(), icon)
         self.assertTrue((ROOT / "public" / "favicon.svg").is_file())
+
+    def test_signed_tauri_updater_is_configured(self) -> None:
+        tauri_config = json.loads((ROOT / "src-tauri" / "tauri.conf.json").read_text())
+        capability = json.loads((ROOT / "src-tauri" / "capabilities" / "default.json").read_text())
+        cargo_manifest = (ROOT / "src-tauri" / "Cargo.toml").read_text()
+        workflow = (ROOT / ".github" / "workflows" / "desktop-release.yml").read_text()
+
+        updater = tauri_config["plugins"]["updater"]
+        self.assertTrue(tauri_config["bundle"]["createUpdaterArtifacts"])
+        self.assertTrue(updater["pubkey"])
+        self.assertEqual(
+            updater["endpoints"],
+            ["https://github.com/Federpelli25/JAVA_linguo/releases/latest/download/latest.json"],
+        )
+        self.assertIn("updater:default", capability["permissions"])
+        self.assertIn("process:allow-restart", capability["permissions"])
+        self.assertIn('tauri-plugin-updater = "=2.11.0"', cargo_manifest)
+        self.assertIn("TAURI_SIGNING_PRIVATE_KEY", workflow)
+        self.assertRegex(workflow, r"tauri-apps/tauri-action@[0-9a-f]{40}")
 
     def test_java_editor_and_terminal_input_are_exposed(self) -> None:
         package = json.loads((ROOT / "package.json").read_text())

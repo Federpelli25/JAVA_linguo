@@ -1,6 +1,6 @@
 [package]
 name = "java-linguo"
-version = "0.5.0"
+version = "0.6.0"
 description = "Percorso desktop per imparare Java con teoria, verifica e laboratorio"
 authors = ["Federpelli25"]
 edition = "2021"
@@ -15,3 +15,5 @@ tauri-build = { version = "=2.6.3", features = [] }
 [dependencies]
 tauri = { version = "=2.11.5", features = [] }
 tauri-plugin-shell = "=2.3.6"
+tauri-plugin-updater = "=2.11.0"
+tauri-plugin-process = "=2.3.1"
