@@ -141,6 +141,8 @@ p code,li code,h2 code { border-radius:.35rem; background:#dfe9e5; color:#005846
 .command-card { align-content:center; background:var(--code); color:#fff; } .command-card>span,.notes-card>span { color:#849b94; font-size:.68rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; } .command-card>code { color:var(--lime); font-size:1rem; } .command-card>small { color:#8fa39d; font-size:.73rem; }
 .notes-card textarea { min-height:6rem; resize:vertical; border:1px solid #cfd9d5; border-radius:.65rem; padding:.7rem; background:#f8faf9; color:var(--foreground); font-size:.83rem; line-height:1.5; outline:none; } .notes-card textarea:focus { border-color:#00a785; box-shadow:0 0 0 3px rgb(0 167 133 / 13%); }
 .completion-card { display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:1rem; margin-top:1rem; border-radius:1rem; padding:1rem; } .completion-card.done { border-color:#9ccf5e; background:#f7ffe9; }
+.completion-card.gated { border-color:#d8c98c; background:#fffbea; }
+.completion-card.gated>svg { color:#866b13; }
 .completion-card>svg { width:2rem; color:var(--primary); } .completion-card span { color:var(--primary); font:700 .68rem var(--font-mono); text-transform:uppercase; } .completion-card h3 { margin:.2rem 0 0; font-size:.92rem; }
 
 @media(max-width:960px){ .app-shell{grid-template-columns:5rem minmax(0,1fr)} .course-rail{padding-inline:.65rem}.brand-lockup{justify-content:center;padding-inline:0}.brand-lockup div,.rail-label,.lesson-copy,.lesson-row>svg,.rail-footer{display:none}.lesson-row{grid-template-columns:1fr;place-items:center;padding:.72rem}.theory-layout{grid-template-columns:1fr}.study-aside{grid-template-columns:1fr 1fr}.slide-map{grid-column:1/-1;grid-template-columns:repeat(8,1fr)}.slide-map small{display:none}.slide-map button{justify-content:center}.tab-strip{padding-inline:1.2rem}.lab-heading{align-items:flex-start;flex-direction:column}.path-card{min-width:0;width:100%}.lab-briefing{grid-template-columns:1fr}.lab-workflow{grid-template-columns:repeat(2,minmax(0,1fr))}.mission-prompts{grid-template-columns:1fr} }
@@ -259,7 +261,9 @@ p code,li code,h2 code { border-radius:.35rem; background:#dfe9e5; color:#005846
 /* Catalogo completo e aggiornamenti desktop */
 .lesson-list { min-height:0; flex:1; }
 .lesson-row:focus-visible { outline:2px solid var(--lime); outline-offset:1px; }
-.lesson-row:not(.active):hover { background:rgb(255 255 255 / 5%); color:#dce9e5; }
+.lesson-row.current:not(.active) { border-color:rgb(34 211 182 / 12%); color:#b9cbc5; }
+.lesson-row.locked { opacity:.62; }
+.lesson-row:not(.active):not(:disabled):hover { background:rgb(255 255 255 / 5%); color:#dce9e5; }
 .lesson-picker-label { display:none; }
 .lesson-outcome small { display:block; margin-top:.75rem; color:#71827d; font-size:.71rem; line-height:1.45; }
 .lesson-sources { display:grid; gap:.55rem; }

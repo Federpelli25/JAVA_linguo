@@ -8,7 +8,7 @@
 [![Scarica il pacchetto Linux](https://img.shields.io/badge/Linux_Debian_Ubuntu-.deb-0a7c66?logo=linux)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.6.0/JAVA_linguo-v0.6.0-linux-x64.deb)
 [![Scarica AppImage](https://img.shields.io/badge/Linux_portabile-.AppImage-0a7c66?logo=linux)](https://github.com/Federpelli25/JAVA_linguo/releases/download/v0.6.0/JAVA_linguo-v0.6.0-linux-x64.AppImage)
 
-JAVA_linguo è un'applicazione didattica open source per studiare Java con un percorso strutturato: teoria, verifica e laboratorio pratico. Il corso completo comprende **52 lezioni selezionabili**, dai fondamenti a Java 25 e a quattro progetti conclusivi, con un livello di approfondimento simile a un corso universitario.
+JAVA_linguo è un'applicazione didattica open source per studiare Java con un percorso strutturato: teoria, verifica e laboratorio pratico. Il corso completo comprende **52 lezioni in un percorso guidato**, dai fondamenti a Java 25 e a quattro progetti conclusivi, con un livello di approfondimento simile a un corso universitario. Ogni lezione si sblocca soltanto completando verifica e laboratorio della precedente.
 
 > **Nuovo materiale ogni due settimane.** Il progetto viene aggiornato con lezioni, esercizi, approfondimenti sulle versioni Java e miglioramenti dell'esperienza di studio.
 
@@ -99,6 +99,7 @@ Gli installer attuali non sono ancora firmati con un certificato commerciale. Fi
 ## Cosa offre
 
 - teoria progressiva con esempi, analogie e tracciamento dell'esecuzione;
+- percorso sequenziale: una sola nuova lezione disponibile alla volta, con quelle future bloccate;
 - verifiche con feedback ragionato;
 - editor Java e terminale integrati nel laboratorio;
 - esecuzione del codice in un container Docker temporaneo e isolato;

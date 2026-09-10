@@ -18,15 +18,15 @@
     "file": "_next/static/chunks/rolldown-runtime-hePW80VL.js",
     "name": "rolldown-runtime"
   },
-  "_vinext-a00yAzbi.js": {
-    "file": "_next/static/chunks/vinext-a00yAzbi.js",
+  "_vinext-BsV8rUbO.js": {
+    "file": "_next/static/chunks/vinext-BsV8rUbO.js",
     "name": "vinext",
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
       "_framework-DTZGTDtF.js"
     ],
     "dynamicImports": [
-      "_vinext-a00yAzbi.js"
+      "_vinext-BsV8rUbO.js"
     ]
   },
   "app/course-data.ts": {
@@ -73,14 +73,14 @@
     ]
   },
   "app/page.tsx": {
-    "file": "_next/static/chunks/page-C4td1i-y.js",
+    "file": "_next/static/chunks/page-DcwWtrNd.js",
     "name": "page",
     "src": "app/page.tsx",
     "isDynamicEntry": true,
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
       "_framework-DTZGTDtF.js",
-      "_vinext-a00yAzbi.js"
+      "_vinext-BsV8rUbO.js"
     ],
     "dynamicImports": [
       "app/course-data.ts",
@@ -111,28 +111,28 @@
     ]
   },
   "node_modules/vinext/dist/shims/layout-segment-context.js": {
-    "file": "_next/static/chunks/layout-segment-context-DjyKvUak.js",
+    "file": "_next/static/chunks/layout-segment-context-BPhb_f7_.js",
     "name": "layout-segment-context",
     "src": "node_modules/vinext/dist/shims/layout-segment-context.js",
     "isDynamicEntry": true,
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
       "_framework-DTZGTDtF.js",
-      "_vinext-a00yAzbi.js"
+      "_vinext-BsV8rUbO.js"
     ]
   },
   "virtual:vinext-app-browser-entry": {
-    "file": "_next/static/chunks/index-CUgeAwRS.js",
+    "file": "_next/static/chunks/index-BYoqWGyo.js",
     "name": "index",
     "src": "virtual:vinext-app-browser-entry",
     "isEntry": true,
     "imports": [
       "_rolldown-runtime-hePW80VL.js",
       "_framework-DTZGTDtF.js",
-      "_vinext-a00yAzbi.js"
+      "_vinext-BsV8rUbO.js"
     ],
     "dynamicImports": [
-      "_vinext-a00yAzbi.js",
+      "_vinext-BsV8rUbO.js",
       "node_modules/vinext/dist/shims/layout-segment-context.js",
       "app/page.tsx"
     ]

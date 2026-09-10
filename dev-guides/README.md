@@ -27,6 +27,7 @@ Prima di modificare server locale, API del laboratorio, esecuzione Docker, dipen
 ## Interfaccia
 
 - Conservare il flusso Teoria → Verifica → Laboratorio.
+- Conservare lo sblocco sequenziale: la lezione successiva diventa accessibile soltanto dopo il completamento di tutte le precedenti.
 - Corpo del testo almeno 16 px e contrasto leggibile.
 - Tutti i controlli devono funzionare con tastiera e avere un’etichetta accessibile.
 - Progressi e note devono restare locali al dispositivo.

@@ -18,6 +18,7 @@ import {
   GraduationCap,
   Lightbulb,
   LoaderCircle,
+  LockKeyhole,
   Play,
   RotateCcw,
   ShieldCheck,
@@ -42,6 +43,7 @@ import { Progress, ProgressLabel } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { courseManifest, loadLesson } from './course-loader';
+import { firstIncompleteLesson, lessonAccessStatus } from './course-progression';
 import type { CourseLesson } from './course-types';
 import UpdateCenter from './update-center';
 import { APP_VERSION } from './version';
@@ -225,6 +227,14 @@ export default function Home() {
     window.localStorage.removeItem(LEGACY_STORAGE_KEY);
   }, [activeNumber, progressByLesson, hydrated]);
 
+  useEffect(() => {
+    if (!hydrated) return;
+    const activeIndex = courseManifest.findIndex((item) => item.number === activeNumber);
+    if (lessonAccessStatus(courseManifest, activeIndex, progressByLesson) !== 'locked') return;
+    const fallback = firstIncompleteLesson(courseManifest, progressByLesson) ?? courseManifest[0];
+    queueMicrotask(() => setActiveNumber(fallback.number));
+  }, [activeNumber, progressByLesson, hydrated]);
+
   const lesson = loadedLesson?.number === activeNumber ? loadedLesson : null;
   const lessonProgress = lesson ? progressByLesson[lesson.number] : undefined;
   const answers = lessonProgress?.answers ?? EMPTY_ANSWERS;
@@ -263,6 +273,8 @@ export default function Home() {
   }
 
   function openLesson(number: string) {
+    const targetIndex = courseManifest.findIndex((item) => item.number === number);
+    if (lessonAccessStatus(courseManifest, targetIndex, progressByLesson) === 'locked') return;
     setLessonError('');
     setActiveNumber(number);
     setTerminalEntries([]);
@@ -344,6 +356,12 @@ export default function Home() {
     );
   }
 
+  const activeLessonIndex = courseManifest.findIndex((item) => item.number === lesson.number);
+  const nextLesson = courseManifest[activeLessonIndex + 1];
+  const firstIncompleteIndex = courseManifest.findIndex(
+    (item) => progressByLesson[item.number]?.completed !== true,
+  );
+
   return (
     <main className="app-shell">
       <aside className="course-rail">
@@ -353,17 +371,19 @@ export default function Home() {
         </div>
         <div className="rail-label">Percorso accademico</div>
         <nav aria-label="Lezioni del corso" className="lesson-list">
-          {courseManifest.map((item) => {
-            const itemCompleted = progressByLesson[item.number]?.completed;
+          {courseManifest.map((item, itemIndex) => {
+            const access = lessonAccessStatus(courseManifest, itemIndex, progressByLesson);
+            const itemCompleted = access === 'completed';
             const active = item.number === lesson.number;
+            const immediatelyNext = access === 'locked' && itemIndex === firstIncompleteIndex + 1;
             return (
-            <button className={`lesson-row ${active ? 'active' : ''}`} onClick={() => openLesson(item.number)} key={item.number} aria-current={active ? 'page' : undefined}>
+            <button className={`lesson-row ${access} ${active ? 'active' : ''}`} disabled={access === 'locked'} onClick={() => openLesson(item.number)} key={item.number} aria-current={active ? 'page' : undefined}>
               <span className="lesson-number">{item.number}</span>
               <span className="lesson-copy">
                 <strong>{item.title}</strong>
-                <small>{itemCompleted ? 'Completata' : active ? 'In corso' : `${item.level} · JDK ${item.minimumJdk}`}</small>
+                <small>{itemCompleted ? 'Completata' : access === 'current' ? (active ? 'In corso' : 'Disponibile') : immediatelyNext ? `Completa prima la lezione ${courseManifest[itemIndex - 1].number}` : 'Bloccata'}</small>
               </span>
-              {itemCompleted ? <CheckCircle2 /> : <ChevronRight />}
+              {itemCompleted ? <CheckCircle2 /> : access === 'locked' ? <LockKeyhole /> : <ChevronRight />}
             </button>
           );})}
         </nav>
@@ -387,7 +407,10 @@ export default function Home() {
               <label className="lesson-picker-label" htmlFor="lesson-picker">
                 <span>Scegli lezione</span>
                 <select id="lesson-picker" value={lesson.number} onChange={(event) => openLesson(event.target.value)}>
-                  {courseManifest.map((item) => <option value={item.number} key={item.number}>{item.number} · {item.title}</option>)}
+                  {courseManifest.map((item, index) => {
+                    const locked = lessonAccessStatus(courseManifest, index, progressByLesson) === 'locked';
+                    return <option value={item.number} disabled={locked} key={item.number}>{item.number} · {item.title}{locked ? ' — bloccata' : ''}</option>;
+                  })}
                 </select>
               </label>
             </div>
@@ -411,6 +434,7 @@ export default function Home() {
                     <AlertDialogTitle>Azzerare questa lezione?</AlertDialogTitle>
                     <AlertDialogDescription>
                       Verranno cancellati progressi, risposte, appunti e codice salvati per la lezione {lesson.number}. L’operazione non può essere annullata.
+                      {nextLesson && ' Se azzeri una lezione completata, le lezioni successive torneranno bloccate finché non la completerai di nuovo.'}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -593,7 +617,8 @@ export default function Home() {
               <div className="command-card"><span>Comando consigliato</span><code>java Main.java</code><small>Compila ed esegue il file sorgente nel container temporaneo.</small></div>
               <label className="notes-card" htmlFor="lab-notes"><span>Diario rapido</span><textarea id="lab-notes" value={notes} onChange={(event) => updateProgress({ notes: event.target.value })} placeholder="Errore, causa, cosa hai imparato…" /></label>
             </div>
-            {labChecks.length > 0 && labChecks.every(Boolean) && <div className={`completion-card ${completed ? 'done' : ''}`}><CheckCircle2 /><div><span>{completed ? 'Lezione completata' : 'Ultimo checkpoint'}</span><h3>{completed ? 'Riscrivi domani la parte centrale senza guardare.' : 'Se output e casi limite sono corretti, completa la lezione.'}</h3></div>{!completed && <Button onClick={() => updateProgress({ completed: true })}>Segna come completata</Button>}</div>}
+            {labChecks.length > 0 && labChecks.every(Boolean) && !quizPassed && !completed && <div className="completion-card gated"><LockKeyhole /><div><span>Manca la verifica</span><h3>Supera tutte le domande della verifica per poter completare la lezione e sbloccare la successiva.</h3></div><Button variant="outline" onClick={() => setTab('quiz')}>Completa la verifica</Button></div>}
+            {labChecks.length > 0 && labChecks.every(Boolean) && (quizPassed || completed) && <div className={`completion-card ${completed ? 'done' : ''}`}><CheckCircle2 /><div><span>{completed ? 'Lezione completata' : 'Ultimo checkpoint'}</span><h3>{completed ? (nextLesson ? `La lezione ${nextLesson.number} è ora disponibile.` : 'Hai completato l’intero percorso JAVA_linguo.') : 'Verifica e laboratorio sono completi: conferma per sbloccare il passo successivo.'}</h3></div>{!completed ? <Button onClick={() => updateProgress({ completed: true })}>{nextLesson ? `Completa e sblocca la ${nextLesson.number}` : 'Completa il corso'}</Button> : nextLesson && <Button onClick={() => openLesson(nextLesson.number)}>Apri la lezione {nextLesson.number} <ArrowRight /></Button>}</div>}
           </TabsContent>
         </Tabs>
       </section>

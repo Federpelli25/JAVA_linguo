@@ -37,10 +37,31 @@ const { lessons02to19 } = loadTypeScript('app/course-lessons-02-19.ts');
 const { lessons20to37 } = loadTypeScript('app/course-lessons-20-37.ts');
 const { lessons38to52 } = loadTypeScript('app/course-lessons-38-52.ts');
 const { courseManifest } = loadTypeScript('app/course-manifest.ts');
+const { firstIncompleteLesson, lessonAccessStatus } = loadTypeScript('app/course-progression.ts');
 const lessons = [lessonOne, ...lessons02to19, ...lessons20to37, ...lessons38to52];
 
 if (lessons.length !== 52 || courseManifest.length !== 52) {
   throw new Error(`Il corso deve contenere 52 lezioni: contenuti=${lessons.length}, indice=${courseManifest.length}.`);
+}
+
+const emptyProgress = {};
+if (lessonAccessStatus(courseManifest, 0, emptyProgress) !== 'current') {
+  throw new Error('La prima lezione deve essere disponibile al primo avvio.');
+}
+if (lessonAccessStatus(courseManifest, 1, emptyProgress) !== 'locked') {
+  throw new Error('La seconda lezione deve essere inizialmente bloccata.');
+}
+const afterLessonOne = { '01': { completed: true } };
+if (
+  lessonAccessStatus(courseManifest, 0, afterLessonOne) !== 'completed'
+  || lessonAccessStatus(courseManifest, 1, afterLessonOne) !== 'current'
+  || firstIncompleteLesson(courseManifest, afterLessonOne)?.number !== '02'
+) {
+  throw new Error('Completare la lezione 01 deve sbloccare soltanto la lezione 02.');
+}
+const inconsistentProgress = { '01': { completed: true }, '03': { completed: true } };
+if (lessonAccessStatus(courseManifest, 2, inconsistentProgress) !== 'locked') {
+  throw new Error('Una lezione resta bloccata se manca anche un solo prerequisito precedente.');
 }
 
 for (const [index, lesson] of lessons.entries()) {
@@ -75,4 +96,4 @@ try {
   fs.rmSync(compileRoot, { recursive: true, force: true });
 }
 
-console.log('Corso validato: 52 lezioni complete e 52 starter Main.java compilabili.');
+console.log('Corso validato: 52 lezioni complete, progressione sequenziale e 52 starter Main.java compilabili.');
