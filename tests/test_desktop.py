@@ -65,8 +65,7 @@ class DesktopConfigurationTests(unittest.TestCase):
         self.assertIn("taskkill.exe", installer_hook_source)
 
         rust_source = (ROOT / "src-tauri" / "src" / "lib.rs").read_text()
-        self.assertIn("on_before_exit", rust_source)
-        self.assertIn("stop_backend(&updater_backend)", rust_source)
+        self.assertIn("stop_backend(&app.state::<BackendProcess>())", rust_source)
 
     def test_java_editor_and_terminal_input_are_exposed(self) -> None:
         package = json.loads((ROOT / "package.json").read_text())
