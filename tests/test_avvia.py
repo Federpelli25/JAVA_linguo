@@ -6,6 +6,7 @@ import threading
 import unittest
 from http import HTTPStatus
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import avvia
@@ -74,7 +75,9 @@ class SandboxCommandTests(unittest.TestCase):
             def kill(self) -> None:
                 return None
 
-        with patch("avvia.subprocess.Popen", return_value=FakeProcess()), patch(
+        with patch("avvia.os.name", "nt"), patch(
+            "avvia.subprocess.Popen", return_value=FakeProcess()
+        ) as popen, patch(
             "avvia.force_remove_container"
         ) as remove:
             exit_code, output, timed_out, limited = avvia.run_docker_process(
@@ -86,7 +89,27 @@ class SandboxCommandTests(unittest.TestCase):
         self.assertTrue(limited)
         self.assertLessEqual(len(output.encode("utf-8")), avvia.MAX_OUTPUT_BYTES + 100)
         self.assertIn("Output interrotto", output)
+        self.assertEqual(
+            popen.call_args.kwargs["creationflags"],
+            avvia.WINDOWS_CREATE_NO_WINDOW,
+        )
         remove.assert_called_once_with("java-linguo-test")
+
+    def test_docker_checks_hide_windows_child_processes(self) -> None:
+        daemon = SimpleNamespace(returncode=0, stdout="25.0\n")
+        image = SimpleNamespace(returncode=0, stdout="")
+        with patch("avvia.os.name", "nt"), patch(
+            "avvia.shutil.which", return_value="docker.exe"
+        ), patch("avvia.subprocess.run", side_effect=[daemon, image]) as run:
+            available, _ = avvia.docker_status(avvia.DEFAULT_SANDBOX_IMAGE)
+
+        self.assertTrue(available)
+        self.assertEqual(run.call_count, 2)
+        for call in run.call_args_list:
+            self.assertEqual(
+                call.kwargs["creationflags"],
+                avvia.WINDOWS_CREATE_NO_WINDOW,
+            )
 
 
 class RequestSecurityTests(unittest.TestCase):
@@ -121,8 +144,10 @@ class RequestSecurityTests(unittest.TestCase):
 class AppHandlerSecurityTests(unittest.TestCase):
     def setUp(self) -> None:
         avvia.reset_rate_limit()
-        self.docker_status = patch("avvia.docker_status", return_value=(True, "Sandbox pronta"))
-        self.docker_status.start()
+        self.docker_status_patch = patch(
+            "avvia.docker_status", return_value=(True, "Sandbox pronta")
+        )
+        self.docker_status = self.docker_status_patch.start()
         self.server = avvia.LocalAppServer(("127.0.0.1", 0), avvia.AppHandler)
         self.port = self.server.server_port
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
@@ -132,7 +157,7 @@ class AppHandlerSecurityTests(unittest.TestCase):
         self.server.shutdown()
         self.server.server_close()
         self.thread.join(timeout=2)
-        self.docker_status.stop()
+        self.docker_status_patch.stop()
 
     def request(
         self,
@@ -156,6 +181,7 @@ class AppHandlerSecurityTests(unittest.TestCase):
         return headers["set-cookie"].split(";", 1)[0]
 
     def test_config_sets_protected_cookie_and_security_headers(self) -> None:
+        self.docker_status.reset_mock()
         status, headers, body = self.request("GET", "/app-config.json")
         payload = json.loads(body)
 
@@ -167,6 +193,28 @@ class AppHandlerSecurityTests(unittest.TestCase):
         self.assertEqual(headers["x-frame-options"], "DENY")
         self.assertIn("frame-ancestors 'none'", headers["content-security-policy"])
         self.assertEqual(headers["cache-control"], "no-store")
+        self.assertFalse(payload["labSandbox"]["available"])
+        self.docker_status.assert_not_called()
+
+    def test_sandbox_status_is_checked_only_on_authenticated_request(self) -> None:
+        cookie = self.session_cookie()
+        self.docker_status.reset_mock()
+        headers = {
+            "Content-Type": "application/json",
+            "Origin": f"http://127.0.0.1:{self.port}",
+        }
+
+        status, _, _ = self.request("POST", "/api/lab/status", b"{}", headers)
+        self.assertEqual(status, HTTPStatus.FORBIDDEN)
+        self.docker_status.assert_not_called()
+
+        headers["Cookie"] = cookie
+
+        status, _, body = self.request("POST", "/api/lab/status", b"{}", headers)
+
+        self.assertEqual(status, HTTPStatus.OK)
+        self.assertTrue(json.loads(body)["available"])
+        self.docker_status.assert_called_once_with(avvia.DEFAULT_SANDBOX_IMAGE)
 
     def test_invalid_host_is_rejected(self) -> None:
         status, _, _ = self.request(

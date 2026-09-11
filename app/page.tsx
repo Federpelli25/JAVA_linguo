@@ -1,6 +1,6 @@
 'use client';
 
-import { KeyboardEvent, useEffect, useMemo, useState } from 'react';
+import { KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import {
@@ -127,13 +127,43 @@ export default function Home() {
   const [terminalEntries, setTerminalEntries] = useState<TerminalEntry[]>([]);
   const [running, setRunning] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const [configReady, setConfigReady] = useState(false);
+  const [sandboxChecked, setSandboxChecked] = useState(false);
+  const [sandboxChecking, setSandboxChecking] = useState(false);
+  const sandboxCheckInFlight = useRef(false);
   const [githubUrl, setGithubUrl] = useState(DEFAULT_GITHUB_URL);
   const [sandbox, setSandbox] = useState<SandboxStatus>({
     available: false,
-    message: 'Verifica della sandbox locale…',
+    message: 'La sandbox verrà verificata quando apri il laboratorio.',
     image: 'eclipse-temurin:25-jdk',
     commands: ['java --version', 'javac Main.java', 'java Main.java'],
   });
+
+  const refreshSandbox = useCallback(async () => {
+    if (sandboxCheckInFlight.current) return;
+    sandboxCheckInFlight.current = true;
+    setSandboxChecking(true);
+    try {
+      const response = await fetch('/api/lab/status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: '{}',
+      });
+      if (!response.ok) throw new Error('Stato sandbox non disponibile');
+      setSandbox(await response.json() as SandboxStatus);
+    } catch {
+      setSandbox((current) => ({
+        ...current,
+        available: false,
+        message: 'Docker non risponde. Avvia Docker Desktop e riapri JAVA_linguo.',
+      }));
+    } finally {
+      sandboxCheckInFlight.current = false;
+      setSandboxChecking(false);
+      setSandboxChecked(true);
+    }
+  }, []);
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -188,7 +218,8 @@ export default function Home() {
         message: 'Apri l’app con avvia.py per usare il terminale Docker locale.',
         image: 'eclipse-temurin:25-jdk',
         commands: ['java --version', 'javac Main.java', 'java Main.java'],
-      }));
+      }))
+      .finally(() => setConfigReady(true));
   }, []);
 
   useEffect(() => {
@@ -245,6 +276,12 @@ export default function Home() {
   const tab = lessonProgress?.tab ?? 'theory';
   const code = lessonProgress?.code ?? '';
   const notes = lessonProgress?.notes ?? '';
+
+  useEffect(() => {
+    if (configReady && tab === 'lab' && !sandboxChecked && !sandboxChecking) {
+      queueMicrotask(() => void refreshSandbox());
+    }
+  }, [configReady, refreshSandbox, sandboxChecked, sandboxChecking, tab]);
 
   const quizScore = useMemo(
     () => lesson?.quiz.filter((question) => answers[question.id] === question.correct).length ?? 0,
@@ -507,8 +544,8 @@ export default function Home() {
           <TabsContent value="lab" className="content-panel lab-panel">
             <div className="lab-heading">
               <div className="section-heading"><span>Scrivi, compila, osserva</span><h2>Laboratorio interattivo</h2><p>Modifica <code>Main.java</code>, prevedi il risultato e verifica la tua ipotesi nel container isolato.</p></div>
-              <div className={`sandbox-badge ${sandbox.available ? 'ready' : 'offline'}`}>
-                <ShieldCheck /><div><span>Sandbox Docker</span><strong>{sandbox.available ? 'Pronta' : 'Da configurare'}</strong></div>
+              <div className={`sandbox-badge ${sandboxChecking ? 'checking' : sandbox.available ? 'ready' : 'offline'}`}>
+                {sandboxChecking ? <LoaderCircle className="spin" /> : <ShieldCheck />}<div><span>Sandbox Docker</span><strong>{sandboxChecking ? 'Verifica…' : sandbox.available ? 'Pronta' : 'Da configurare'}</strong></div>
               </div>
             </div>
             {!quizPassed && <div className="warning-banner"><Lightbulb /> Ti consiglio di superare prima la verifica.<Button variant="link" onClick={() => setTab('quiz')}>Vai alla verifica</Button></div>}
@@ -571,8 +608,8 @@ export default function Home() {
                 <div className="ide-toolbar">
                   <div className="file-tab"><Code2 /> Main.java <span>{code.length} caratteri</span></div>
                   <div className="editor-actions">
-                    <Button size="sm" variant="outline" disabled={running || !sandbox.available} onClick={() => void runCommand('javac Main.java')}>Compila</Button>
-                    <Button size="sm" disabled={running || !sandbox.available} onClick={() => void runCommand('java Main.java')}>
+                    <Button size="sm" variant="outline" disabled={running || sandboxChecking || !sandbox.available} onClick={() => void runCommand('javac Main.java')}>Compila</Button>
+                    <Button size="sm" disabled={running || sandboxChecking || !sandbox.available} onClick={() => void runCommand('java Main.java')}>
                       {running ? <LoaderCircle className="spin" /> : <Play />} Esegui
                     </Button>
                   </div>
@@ -602,7 +639,7 @@ export default function Home() {
                   <div className="terminal-prompt">
                     <span aria-hidden="true">$</span>
                     <input id="terminal-command" value={command} onChange={(event) => setCommand(event.target.value)} autoComplete="off" spellCheck={false} aria-describedby="terminal-help" placeholder="es. java Main.java" />
-                    <Button type="submit" size="sm" disabled={running}>Invio</Button>
+                    <Button type="submit" size="sm" disabled={running || sandboxChecking}>Invio</Button>
                   </div>
                   <small id="terminal-help" className="terminal-help">Scrivi <code>help</code> per vedere i comandi consentiti. Nessuna shell del PC viene esposta.</small>
                 </form>

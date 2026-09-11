@@ -44,6 +44,7 @@ RATE_LIMIT_REQUESTS = 12
 RATE_LIMIT_WINDOW_SECONDS = 60
 SESSION_COOKIE_NAME = "java_linguo_session"
 SANDBOX_USER = "65532:65532"
+WINDOWS_CREATE_NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000)
 LAB_API_TOKEN = secrets.token_urlsafe(32)
 IMAGE_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/:@-]{0,199}$")
 PINNED_IMAGE_PATTERN = re.compile(r"^.+@sha256:[0-9a-f]{64}$")
@@ -71,6 +72,11 @@ SECURITY_HEADERS = {
 _rate_limit_timestamps: deque[float] = deque()
 _rate_limit_lock = threading.Lock()
 _sandbox_slots = threading.BoundedSemaphore(MAX_CONCURRENT_RUNS)
+
+
+def quiet_subprocess_options() -> dict[str, int]:
+    """Evita finestre console temporanee quando il backend desktop avvia un comando."""
+    return {"creationflags": WINDOWS_CREATE_NO_WINDOW} if os.name == "nt" else {}
 
 
 def load_environment() -> None:
@@ -108,7 +114,12 @@ def ensure_build() -> None:
         return
     print("Prima compilazione dell'interfaccia in corso…")
     npm = "npm.cmd" if os.name == "nt" else "npm"
-    result = subprocess.run([npm, "run", "build"], cwd=ROOT, check=False)
+    result = subprocess.run(
+        [npm, "run", "build"],
+        cwd=ROOT,
+        check=False,
+        **quiet_subprocess_options(),
+    )
     if result.returncode != 0 or not (DIST / "index.html").exists():
         raise RuntimeError("Esegui 'npm install' e poi 'npm run build'.")
 
@@ -231,6 +242,7 @@ def docker_status(image: str) -> tuple[bool, str]:
             text=True,
             timeout=4,
             check=False,
+            **quiet_subprocess_options(),
         )
     except (OSError, subprocess.TimeoutExpired):
         return False, "Docker non risponde. Avvia Docker Desktop e riprova."
@@ -243,6 +255,7 @@ def docker_status(image: str) -> tuple[bool, str]:
             text=True,
             timeout=4,
             check=False,
+            **quiet_subprocess_options(),
         )
     except (OSError, subprocess.TimeoutExpired):
         return False, "Non è stato possibile verificare l'immagine Java."
@@ -315,6 +328,7 @@ def force_remove_container(container_name: str) -> None:
             capture_output=True,
             timeout=4,
             check=False,
+            **quiet_subprocess_options(),
         )
     except (OSError, subprocess.SubprocessError):
         pass
@@ -328,6 +342,7 @@ def run_docker_process(
         docker_command,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
+        **quiet_subprocess_options(),
     )
     captured = bytearray()
     output_limit_reached = threading.Event()
@@ -451,14 +466,13 @@ class AppHandler(SimpleHTTPRequestHandler):
             return
         if urlparse(self.path).path == "/app-config.json":
             image = sandbox_image()
-            available, reason = docker_status(image)
             self.send_json(
                 {
                     "appVersion": app_version(),
                     "githubRepositoryUrl": os.getenv("GITHUB_REPOSITORY_URL", DEFAULT_REPOSITORY),
                     "labSandbox": {
-                        "available": available,
-                        "message": reason,
+                        "available": False,
+                        "message": "La sandbox verrà verificata quando apri il laboratorio.",
                         "image": image,
                         "commands": list(ALLOWED_COMMANDS),
                     },
@@ -480,7 +494,8 @@ class AppHandler(SimpleHTTPRequestHandler):
                 HTTPStatus.MISDIRECTED_REQUEST,
             )
             return
-        if urlparse(self.path).path != "/api/lab/command":
+        request_path = urlparse(self.path).path
+        if request_path not in {"/api/lab/command", "/api/lab/status"}:
             self.send_json({"ok": False, "error": "Endpoint non trovato."}, HTTPStatus.NOT_FOUND)
             return
         if not origin_is_allowed(self.headers.get("Origin", ""), self.server.server_port):
@@ -524,6 +539,18 @@ class AppHandler(SimpleHTTPRequestHandler):
             payload = json.loads(self.rfile.read(content_length).decode("utf-8"))
             if not isinstance(payload, dict):
                 raise ValueError("Il corpo JSON deve essere un oggetto.")
+            if request_path == "/api/lab/status":
+                image = sandbox_image()
+                available, reason = docker_status(image)
+                self.send_json(
+                    {
+                        "available": available,
+                        "message": reason,
+                        "image": image,
+                        "commands": list(ALLOWED_COMMANDS),
+                    }
+                )
+                return
             code = payload.get("code", "")
             command = payload.get("command", "")
             if not isinstance(code, str) or not isinstance(command, str):

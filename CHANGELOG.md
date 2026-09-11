@@ -2,6 +2,14 @@
 
 Tutte le modifiche rilevanti di JAVA_linguo sono documentate in questo file. Il progetto segue il versionamento semantico.
 
+## [0.6.2] - 2026-09-11
+
+### Corretto
+
+- avvio Windows senza finestre terminale temporanee durante i controlli e i comandi Docker;
+- verifica di Docker spostata all’apertura del Laboratorio, così Teoria e Verifica non attendono processi esterni all’avvio;
+- nuovo controllo dello stato della sandbox protetto da origine locale, cookie di sessione e limiti di concorrenza.
+
 ## [0.6.1] - 2026-09-11
 
 ### Corretto
