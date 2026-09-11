@@ -45,6 +45,8 @@ class DesktopConfigurationTests(unittest.TestCase):
         workflow = (ROOT / ".github" / "workflows" / "desktop-release.yml").read_text()
 
         updater = tauri_config["plugins"]["updater"]
+        installer_hooks = tauri_config["bundle"]["windows"]["nsis"]["installerHooks"]
+        installer_hook_source = (ROOT / "src-tauri" / installer_hooks).read_text()
         self.assertTrue(tauri_config["bundle"]["createUpdaterArtifacts"])
         self.assertTrue(updater["pubkey"])
         self.assertEqual(
@@ -57,6 +59,14 @@ class DesktopConfigurationTests(unittest.TestCase):
         self.assertIn("TAURI_SIGNING_PRIVATE_KEY", workflow)
         self.assertEqual(workflow.count("bundles: app,dmg"), 2)
         self.assertRegex(workflow, r"tauri-apps/tauri-action@[0-9a-f]{40}")
+        self.assertIn("NSIS_HOOK_PREINSTALL", installer_hook_source)
+        self.assertIn("NSIS_HOOK_PREUNINSTALL", installer_hook_source)
+        self.assertIn("java-linguo-backend.exe", installer_hook_source)
+        self.assertIn("taskkill.exe", installer_hook_source)
+
+        rust_source = (ROOT / "src-tauri" / "src" / "lib.rs").read_text()
+        self.assertIn("on_before_exit", rust_source)
+        self.assertIn("stop_backend(&updater_backend)", rust_source)
 
     def test_java_editor_and_terminal_input_are_exposed(self) -> None:
         package = json.loads((ROOT / "package.json").read_text())

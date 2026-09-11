@@ -2,6 +2,14 @@
 
 Tutte le modifiche rilevanti di JAVA_linguo sono documentate in questo file. Il progetto segue il versionamento semantico.
 
+## [0.6.1] - 2026-09-11
+
+### Corretto
+
+- terminazione del backend incorporato prima che l’updater Windows avvii l’installer, evitando il blocco del file `java-linguo-backend.exe`;
+- chiusura preventiva dei backend rimasti orfani durante installazione, aggiornamento e disinstallazione NSIS;
+- generazione degli archivi `.app.tar.gz` necessari agli aggiornamenti automatici su macOS Intel e Apple Silicon.
+
 ## [0.6.0] - 2026-09-10
 
 ### Aggiunto

@@ -1,13 +1,28 @@
 use std::net::{SocketAddr, TcpListener, TcpStream};
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 use tauri::{Manager, RunEvent};
 use tauri_plugin_shell::process::CommandChild;
 use tauri_plugin_shell::ShellExt;
 
-#[derive(Default)]
-struct BackendProcess(Mutex<Option<CommandChild>>);
+#[derive(Clone, Default)]
+struct BackendProcess(Arc<Mutex<Option<CommandChild>>>);
+
+fn stop_backend(process: &BackendProcess) {
+    let child = process
+        .0
+        .lock()
+        .ok()
+        .and_then(|mut current| current.take());
+
+    if let Some(child) = child {
+        let _ = child.kill();
+
+        #[cfg(windows)]
+        std::thread::sleep(Duration::from_millis(750));
+    }
+}
 
 fn available_loopback_port() -> Result<u16, String> {
     TcpListener::bind(("127.0.0.1", 0))
@@ -58,11 +73,17 @@ fn wait_for_backend(app: tauri::AppHandle, port: u16) {
 }
 
 pub fn run() {
+    let backend_process = BackendProcess::default();
+    let updater_backend = backend_process.clone();
     let application = tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
-        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(
+            tauri_plugin_updater::Builder::new()
+                .on_before_exit(move || stop_backend(&updater_backend))
+                .build(),
+        )
         .plugin(tauri_plugin_process::init())
-        .manage(BackendProcess::default())
+        .manage(backend_process)
         .setup(|app| {
             let port = available_loopback_port()?;
             let port_argument = port.to_string();
@@ -91,11 +112,7 @@ pub fn run() {
 
     application.run(|app, event| {
         if let RunEvent::ExitRequested { .. } = event {
-            if let Ok(mut process) = app.state::<BackendProcess>().0.lock() {
-                if let Some(child) = process.take() {
-                    let _ = child.kill();
-                }
-            }
+            stop_backend(&app.state::<BackendProcess>());
         }
     });
 }
