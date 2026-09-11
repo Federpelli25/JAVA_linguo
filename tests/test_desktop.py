@@ -55,6 +55,7 @@ class DesktopConfigurationTests(unittest.TestCase):
         self.assertIn("process:allow-restart", capability["permissions"])
         self.assertIn('tauri-plugin-updater = "=2.11.0"', cargo_manifest)
         self.assertIn("TAURI_SIGNING_PRIVATE_KEY", workflow)
+        self.assertEqual(workflow.count("bundles: app,dmg"), 2)
         self.assertRegex(workflow, r"tauri-apps/tauri-action@[0-9a-f]{40}")
 
     def test_java_editor_and_terminal_input_are_exposed(self) -> None:

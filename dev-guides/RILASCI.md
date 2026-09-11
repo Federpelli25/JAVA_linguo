@@ -67,7 +67,8 @@ Dopo i controlli:
 5. verificare che la pagina Releases offra il sorgente ZIP e il tag corretto.
 6. verificare che la stessa pipeline pubblichi `.exe`, `.dmg`, `.AppImage`, `.deb` e i relativi checksum.
 7. aprire dal `README.md` ogni collegamento di download diretto e verificare che punti all'asset della versione appena pubblicata.
-8. verificare che la release contenga `latest.json` e i file `.sig`, quindi controllare dall'app della versione precedente che il nuovo aggiornamento venga proposto, scaricato, verificato e installato.
+8. verificare che la release contenga `latest.json` e i file `.sig`, inclusi gli archivi updater `.app.tar.gz` per entrambe le architetture macOS;
+9. controllare che `latest.json` contenga Windows, Linux, `darwin-aarch64` e `darwin-x86_64`, quindi verificare dall'app della versione precedente che il nuovo aggiornamento venga proposto, scaricato, verificato e installato.
 
 Gli installer devono essere compilati sul sistema operativo di destinazione. Non dichiarare un pacchetto firmato o notarizzato senza aver configurato e verificato i certificati relativi.
 

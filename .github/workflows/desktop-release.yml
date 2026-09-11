@@ -37,13 +37,13 @@ jobs:
             platform: macos
             architecture: arm64
             target: aarch64-apple-darwin
-            bundles: dmg
+            bundles: app,dmg
           - label: macOS Intel
             runner: macos-15-intel
             platform: macos
             architecture: x64
             target: x86_64-apple-darwin
-            bundles: dmg
+            bundles: app,dmg
 
     steps:
       - name: Scarica il tag pubblicato
